@@ -1,0 +1,22 @@
+{
+  "name": "ts-swarm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "example:basic": "npx tsx examples/basic/main.ts",
+    "example:custom": "npx tsx examples/custom/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openai": "^4.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.9",
+    "babel-eslint": "^10.1.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.3"
+  }
+}
