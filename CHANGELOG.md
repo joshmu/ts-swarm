@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+### Patch Changes
+
+- 3eb97e3: cosmetic doc changes
+
 ## 1.0.3
 
 ### Patch Changes
