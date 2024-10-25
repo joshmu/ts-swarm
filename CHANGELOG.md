@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- bc26070: add new automated release workflow
+
 ## 1.0.2
 
 ### Patch Changes
