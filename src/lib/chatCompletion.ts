@@ -1,8 +1,8 @@
 import { OpenAI } from 'openai';
 import { Agent } from '../agent';
 import { logger } from '../utils/logger';
-import { ChatCompletion, ChatCompletionChunk } from 'openai/resources';
-import { Stream } from 'openai/streaming';
+import type { ChatCompletion, ChatCompletionChunk } from 'openai/resources';
+import type { Stream } from 'openai/streaming';
 import { agentFuncDescToJSON } from '../utils/agentFuncDescToJson';
 
 /**
