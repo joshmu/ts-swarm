@@ -92,19 +92,21 @@ console.log(lastMessage.content);
 // result: The weather in New York is sunny with a high of 67°F.
 ```
 
-The usage example demonstrates a simple multi-agent system that allows for delegation of tasks to specialized agents.
+The diagram below demonstrates the usage above. A simple multi-agent system that allows for delegation of tasks to specialized agents.
 
 ![Swarm Diagram](assets/swarm_diagram.png)
 
 To see more examples, check out the [examples](./src/examples) directory.
-Otherwise, for more examples refer to the original port from Python: [swarm](https://github.com/openai/swarm)
+
+Otherwise, for more examples please refer to the original openai repo: [swarm](https://github.com/openai/swarm)
+
 The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
 
-For more information on the architecture, see our [ARCHITECTURE.md](./ARCHITECTURE.md).
+For more information on the architecture, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Contributing
 
-We welcome contributions to TS-SWARM! If you'd like to contribute, please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
+We welcome contributions to TS-SWARM! If you'd like to contribute, please see [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
 
 ## Troubleshooting
 
@@ -113,6 +115,10 @@ If you encounter any issues while using TS-SWARM, try the following:
 1. **Runtime Errors**: Enable debug mode by setting `debug: true` in the `swarm.run()` options to get more detailed logs.
 
 If you're still experiencing issues, please [open an issue](https://github.com/joshmu/ts-swarm/issues) on the GitHub repository with a detailed description of the problem and steps to reproduce it.
+
+## Acknowledgements
+
+It goes without saying that this project would not have been possible without the original work done by the OpenAI team. :) Go give the [Swarm API](https://github.com/openai/swarm) a star! ⭐
 
 ## License
 
