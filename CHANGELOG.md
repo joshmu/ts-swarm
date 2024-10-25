@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+### Patch Changes
+
+- 4b3996c: acknowldge openai swarm :)
+
 ## 1.0.4
 
 ### Patch Changes
