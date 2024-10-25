@@ -8,23 +8,6 @@
 
 TS-SWARM is a minimal TypeScript Agentic library inspired by the OpenAI Swarm API. It provides a flexible and extensible system for creating and managing AI agents that can collaborate, communicate, and solve complex tasks.
 
-## Table of Contents
-
-- [TS-SWARM](#ts-swarm)
-  - [Overview](#overview)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Examples](#examples)
-  - [Architecture](#architecture)
-    - [Core Components](#core-components)
-    - [High-Level Overview](#high-level-overview)
-    - [Example Sequence Flow](#example-sequence-flow)
-  - [Contributing](#contributing)
-  - [Troubleshooting](#troubleshooting)
-  - [License](#license)
-
 ## Features
 
 - **Multi-Agent System**: Create and manage multiple AI agents with different roles and capabilities.
@@ -37,34 +20,11 @@ TS-SWARM is a minimal TypeScript Agentic library inspired by the OpenAI Swarm AP
 
 ## Installation
 
-TS-SWARM uses pnpm as its package manager. To install the project dependencies, follow these steps:
+You will need Node.js 18+ and pnpm installed on your local development machine.
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-username/ts-swarm.git
-   cd ts-swarm
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-3. Add your OpenAI API key:
-
-   1. create an `.env` file by copying `.env.example`
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   2. In your `.env` file, replace `your_api_key_here` with your actual OpenAI API key.
-
-   ```bash
-   OPENAI_API_KEY=your_api_key_here
-   ```
+```bash
+pnpm add ts-swarm
+```
 
 ## Usage
 
@@ -92,28 +52,6 @@ const result = await swarm.run({
 });
 ```
 
-## Examples
-
-TS-SWARM comes with two example implementations:
-
-1. Basic Example:
-
-   ```bash
-   pnpm run example:basic
-   ```
-
-2. Custom Example:
-
-   ```bash
-   pnpm run example:custom
-   ```
-
-Make sure to set up your OpenAI API key in a `.env` file before running the examples:
-
-```bash
-OPENAI_API_KEY=your_api_key_here
-```
-
 ## Architecture
 
 TS-SWARM follows a modular architecture that allows for easy extension and customization.
@@ -123,25 +61,6 @@ TS-SWARM follows a modular architecture that allows for easy extension and custo
 1. **Swarm**: The main orchestrator that manages agents and their interactions.
 2. **Agent**: Represents an AI agent with specific capabilities and instructions.
 3. **AgentFunction**: Defines the structure and behavior of functions that agents can use.
-
-### High-Level Overview
-
-TS-SWARM follows a modular architecture that allows for easy extension and customization. The project is structured as follows:
-
-```mermaid
-graph TD
-A((Swarm)) --> B[Agent]
-A --> C[EventEmitter]
-B --> D[AgentFunction]
-B --> E[Instructions]
-A --> F[OpenAI API]
-A --> G[Context Management]
-A --> H[Tool Calls]
-I[Utils] --> A
-I --> B
-J[Types] --> A
-J --> B
-```
 
 ### Example Sequence Flow
 
@@ -173,25 +92,17 @@ Swarm->>User: Final result
 
 This process can repeat multiple times, with the Swarm managing context and potentially switching between different specialized Agents as needed.
 
+For more information on the architecture, see our [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 ## Contributing
 
-We welcome contributions to TS-SWARM! If you'd like to contribute, please follow these steps:
-
-1. Fork the repository
-2. Create a new branch for your feature or bug fix
-3. Make your changes and commit them with a clear commit message
-4. Push your changes to your fork
-5. Create a pull request to the main repository
+We welcome contributions to TS-SWARM! If you'd like to contribute, please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
 
 ## Troubleshooting
 
 If you encounter any issues while using TS-SWARM, try the following:
 
-1. **API Key Issues**: Ensure your OpenAI API key is correctly set in the `.env` file.
-2. **Dependency Issues**: If you encounter any dependency-related errors, try removing the `node_modules` folder and `pnpm-lock.yaml` file, then run `pnpm install` again.
-3. **TypeScript Errors**: Make sure you're using a compatible TypeScript version (check `package.json` for the recommended version). Run `pnpm tsc` to check for any type errors.
-4. **Runtime Errors**: Enable debug mode by setting `debug: true` in the `swarm.run()` options to get more detailed logs.
-5. **Agent Function Errors**: Verify that your agent functions are correctly defined and match the expected interface.
+1. **Runtime Errors**: Enable debug mode by setting `debug: true` in the `swarm.run()` options to get more detailed logs.
 
 If you're still experiencing issues, please [open an issue](https://github.com/joshmu/ts-swarm/issues) on the GitHub repository with a detailed description of the problem and steps to reproduce it.
 
