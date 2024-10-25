@@ -1,3 +1,2 @@
-export * from './types';
-export * from './swarm';
-export * from './agent';
+export { Swarm } from './swarm';
+export { Agent, createAgentFunction } from './agent';

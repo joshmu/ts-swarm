@@ -30,6 +30,10 @@ export interface AgentFunctionDescriptor {
   >;
 }
 
+export function createAgentFunction(arg: AgentFunction): AgentFunction {
+  return arg;
+}
+
 export interface AgentFunction {
   name: string;
   /**

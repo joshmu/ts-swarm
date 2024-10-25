@@ -1,6 +1,6 @@
-import { Swarm, Agent, AgentFunction, createResult } from '../../index';
+import { Swarm, Agent, createAgentFunction } from '../../index';
 
-const getWeather: AgentFunction = {
+const getWeather = createAgentFunction({
   name: 'getWeather',
   func: ({ location }: { location: string }): string => {
     // mock API call...
@@ -17,7 +17,7 @@ const getWeather: AgentFunction = {
       },
     },
   },
-};
+});
 
 const weatherAgent = new Agent({
   name: 'Weather Agent',
@@ -25,15 +25,15 @@ const weatherAgent = new Agent({
   functions: [getWeather],
 });
 
-const transferToWeatherAgent: AgentFunction = {
+const transferToWeatherAgent = createAgentFunction({
   name: 'transferToWeatherAgent',
-  func: () => createResult({ agent: weatherAgent }),
+  func: () => weatherAgent,
   descriptor: {
     name: 'transferToWeatherAgent',
     description: 'Transfer the conversation to the Weather Agent',
     parameters: {},
   },
-};
+});
 
 const triageAgent = new Agent({
   name: 'Triage Agent',

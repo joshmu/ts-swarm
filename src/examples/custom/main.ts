@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Swarm, Agent, AgentFunction, createResult } from '../../index';
+import { Swarm, Agent, createAgentFunction } from '../../index';
 import { emailAgent } from './agents/email/agent';
 import { weatherAgent } from './agents/weather/agent';
 
@@ -14,35 +14,35 @@ const triageAgent = new Agent({
 });
 
 // Define transfer functions
-const transferToWeather: AgentFunction = {
+const transferToWeather = createAgentFunction({
   name: 'transferToWeather',
-  func: () => createResult({ agent: weatherAgent }),
+  func: () => weatherAgent,
   descriptor: {
     name: 'transferToWeather',
     description: 'Transfer the conversation to the Weather Agent',
     parameters: {},
   },
-};
+});
 
-const transferToEmail: AgentFunction = {
+const transferToEmail = createAgentFunction({
   name: 'transferToEmail',
-  func: () => createResult({ agent: emailAgent }),
+  func: () => emailAgent,
   descriptor: {
     name: 'transferToEmail',
     description: 'Transfer the conversation to the Email Agent',
     parameters: {},
   },
-};
+});
 
-const transferBackToTriage: AgentFunction = {
+const transferBackToTriage = createAgentFunction({
   name: 'transferBackToTriage',
-  func: () => createResult({ agent: triageAgent }),
+  func: () => triageAgent,
   descriptor: {
     name: 'transferBackToTriage',
     description: 'Transfer the conversation back to the Triage Agent',
     parameters: {},
   },
-};
+});
 
 // Assign transfer functions to agents
 triageAgent.functions = [transferToWeather, transferToEmail];

@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import { Swarm, Agent, AgentFunction } from '../../index';
+import { Swarm, Agent, createAgentFunction } from '../../index';
 
-const getWeather: AgentFunction = {
+const getWeather = createAgentFunction({
   name: 'getWeather',
   func: ({ location }: { location: string }): string => {
     // This is a mock function, in a real scenario, you'd call an API
@@ -18,9 +18,9 @@ const getWeather: AgentFunction = {
       },
     },
   },
-};
+});
 
-const sendEmail: AgentFunction = {
+const sendEmail = createAgentFunction({
   name: 'sendEmail',
   func: ({
     to,
@@ -56,7 +56,7 @@ const sendEmail: AgentFunction = {
       },
     },
   },
-};
+});
 
 // Create agents
 const weatherAgent = new Agent({

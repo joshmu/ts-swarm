@@ -9,7 +9,9 @@ export interface Response {
   context_variables: Record<string, any>;
 }
 
-export const createResponse = (params: Partial<Response> = {}): Response => ({
+export const createSwarmResult = (
+  params: Partial<Response> = {},
+): Response => ({
   messages: params.messages ?? [],
   agent: params.agent,
   context_variables: params.context_variables ?? {},
@@ -24,7 +26,9 @@ export interface Result {
   context_variables: Record<string, any>;
 }
 
-export const createResult = (params: Partial<Result> = {}): Result => ({
+export const createAgentFunctionResult = (
+  params: Partial<Result> = {},
+): Result => ({
   value: params.value ?? '',
   agent: params.agent,
   context_variables: params.context_variables ?? {},

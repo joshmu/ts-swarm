@@ -8,7 +8,7 @@ Swarm focuses on making agent coordination and execution lightweight, highly con
 
 1. **Swarm**: The main orchestrator that manages agents and their interactions.
 2. **Agent**: Represents an AI agent with specific capabilities and instructions.
-3. **AgentFunction**: Defines the structure and behavior of functions that agents can use.
+3. **AgentFunction**: A function that an agent can execute.
 
 ## High-Level Overview
 
@@ -53,7 +53,7 @@ Swarm->>User: Final result
 1. The user initiates a request to the Swarm with an initial message.
 2. The Swarm passes the message to the appropriate Agent.
 3. The Agent processes the message and uses the OpenAI API to generate a response.
-4. If the response includes tool calls, the Agent executes the corresponding AgentFunctions.
+4. If the response includes tool calls, the Agent executes the corresponding agent function.
 5. The Agent updates its response and context based on the tool call results.
 6. The Swarm returns the final result to the user.
 

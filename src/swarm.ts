@@ -5,8 +5,8 @@ import { validateAgentFuncArgs } from './utils/validateAgentFuncArgs';
 import {
   Response,
   Result,
-  createResponse,
-  createResult,
+  createSwarmResult,
+  createAgentFunctionResult,
   createToolFunction,
 } from './types';
 import { Agent, AgentFunction } from './agent';
@@ -47,13 +47,13 @@ export class Swarm extends EventEmitter {
     if (result && typeof result === 'object' && 'value' in result) {
       return result;
     } else if (result instanceof Agent) {
-      return createResult({
+      return createAgentFunctionResult({
         value: JSON.stringify({ assistant: result.name }),
         agent: result,
       });
     } else {
       try {
-        return createResult({ value: String(result) });
+        return createAgentFunctionResult({ value: String(result) });
       } catch (e: any) {
         const errorMessage = `Failed to cast response to string: ${result}. Make sure agent functions return a string or Result object. Error: ${e.message}`;
         logger(debug, errorMessage);
@@ -73,7 +73,7 @@ export class Swarm extends EventEmitter {
       function_map[func.name] = func;
     });
 
-    const partialResponse = createResponse({
+    const partialResponse = createSwarmResult({
       messages: [],
       agent: undefined,
       context_variables: {},
@@ -252,7 +252,7 @@ export class Swarm extends EventEmitter {
     }
 
     yield {
-      response: createResponse({
+      response: createSwarmResult({
         messages: history.slice(init_len),
         agent: active_agent,
         context_variables: ctx_vars,
@@ -327,7 +327,7 @@ export class Swarm extends EventEmitter {
       }
     }
     const newMessages = history.slice(initialMessageLength);
-    return createResponse({
+    return createSwarmResult({
       messages: newMessages,
       agent: active_agent,
       context_variables: ctx_vars,

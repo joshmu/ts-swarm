@@ -1,6 +1,6 @@
-import { AgentFunction } from '../../../../../agent';
+import { createAgentFunction } from '../../../../../index';
 
-export const sendEmail: AgentFunction = {
+export const sendEmail = createAgentFunction({
   name: 'sendEmail',
   func: ({
     to,
@@ -34,4 +34,4 @@ export const sendEmail: AgentFunction = {
       },
     },
   },
-};
+});
