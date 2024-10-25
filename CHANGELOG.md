@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- 063934d: reduce the public api footprint and refactor
+
 ## 1.0.1
 
 ### Patch Changes

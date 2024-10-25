@@ -1,6 +1,6 @@
 {
   "name": "ts-swarm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A minimal TypeScript Agentic library inspired by the OpenAI Swarm API.",
   "keywords": [
     "swarm",
