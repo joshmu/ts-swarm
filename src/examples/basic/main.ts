@@ -1,11 +1,11 @@
-import 'dotenv/config'
-import { Swarm, Agent, AgentFunction } from '../../src'
+import 'dotenv/config';
+import { Swarm, Agent, AgentFunction } from '../../index';
 
 const getWeather: AgentFunction = {
   name: 'getWeather',
   func: ({ location }: { location: string }): string => {
     // This is a mock function, in a real scenario, you'd call an API
-    return `The weather in ${location} is sunny with a high of 32°C.`
+    return `The weather in ${location} is sunny with a high of 32°C.`;
   },
   descriptor: {
     name: 'getWeather',
@@ -18,7 +18,7 @@ const getWeather: AgentFunction = {
       },
     },
   },
-}
+};
 
 const sendEmail: AgentFunction = {
   name: 'sendEmail',
@@ -27,13 +27,13 @@ const sendEmail: AgentFunction = {
     subject,
     body,
   }: {
-    to: string
-    subject: string
-    body: string
+    to: string;
+    subject: string;
+    body: string;
   }): string => {
     // This is a mock function, in a real scenario, you'd use an email service
-    console.log(`Sending email to ${to} with subject: ${subject}`)
-    return 'Email sent successfully!'
+    console.log(`Sending email to ${to} with subject: ${subject}`);
+    return 'Email sent successfully!';
   },
   descriptor: {
     name: 'sendEmail',
@@ -56,7 +56,7 @@ const sendEmail: AgentFunction = {
       },
     },
   },
-}
+};
 
 // Create agents
 const weatherAgent = new Agent({
@@ -64,17 +64,17 @@ const weatherAgent = new Agent({
   instructions:
     'You are a helpful weather agent. Provide weather information when asked.',
   functions: [getWeather],
-})
+});
 
 const emailAgent = new Agent({
   name: 'Email Agent',
   instructions:
     'You are an email assistant. Help users send emails when requested.',
   functions: [sendEmail],
-})
+});
 
 // Create swarm
-const swarm = new Swarm(process.env.OPENAI_API_KEY)
+const swarm = new Swarm(process.env.OPENAI_API_KEY);
 
 // Example usage
 async function runExample() {
@@ -83,12 +83,12 @@ async function runExample() {
     messages: [
       { role: 'user', content: "What's the weather like in New York?" },
     ],
-  })
+  });
   console.log(
     'Weather:',
     // @ts-ignore
     weatherResult.messages[weatherResult.messages.length - 1].content,
-  )
+  );
 
   const emailResult = await swarm.run({
     agent: emailAgent,
@@ -98,12 +98,12 @@ async function runExample() {
         content: 'Send an email to john@example.com about the weather.',
       },
     ],
-  })
+  });
   console.log(
     'Email:',
     // @ts-ignore
     emailResult.messages[emailResult.messages.length - 1].content,
-  )
+  );
 }
 
-runExample()
+runExample();

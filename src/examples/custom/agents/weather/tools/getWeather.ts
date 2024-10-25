@@ -1,10 +1,10 @@
-import { AgentFunction } from '../../../../../src'
+import { AgentFunction } from '../../../../../agent';
 
 export const getWeather: AgentFunction = {
   name: 'getWeather',
   func: ({ location }: { location: string }): string => {
-    console.log('API Call: getWeather')
-    return `The weather in ${location} is sunny with a high of 32°C.`
+    console.log('API Call: getWeather');
+    return `The weather in ${location} is sunny with a high of 32°C.`;
   },
   descriptor: {
     name: 'getWeather',
@@ -17,4 +17,4 @@ export const getWeather: AgentFunction = {
       },
     },
   },
-}
+};

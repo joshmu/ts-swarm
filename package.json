@@ -1,15 +1,35 @@
 {
   "name": "ts-swarm",
   "version": "1.0.0",
-  "description": "",
+  "description": "A minimal TypeScript Agentic library inspired by the OpenAI Swarm API.",
   "main": "index.js",
   "scripts": {
-    "example:basic": "npx tsx examples/basic/main.ts",
-    "example:custom": "npx tsx examples/custom/main.ts"
+    "build": "tsc",
+    "ci": "pnpm build && pnpm format:check && pnpm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "example:basic": "npx tsx src/examples/basic/main.ts",
+    "example:custom": "npx tsx src/examples/custom/main.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "swarm",
+    "ai",
+    "agentic",
+    "typescript",
+    "openai",
+    "agent",
+    "agentic-workflow"
+  ],
+  "homepage": "https://github.com/joshmu/ts-swarm",
+  "bugs": {
+    "url": "https://github.com/joshmu/ts-swarm/issues"
+  },
+  "author": "Josh Mu <hello@joshmu.dev> (https://joshmu.dev)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshmu/ts-swarm.git"
+  },
+  "license": "MIT",
   "dependencies": {
     "openai": "^4.57.0"
   },
@@ -17,6 +37,11 @@
     "@types/node": "^22.7.9",
     "babel-eslint": "^10.1.0",
     "dotenv": "^16.4.5",
+    "prettier": "^3.3.3",
     "typescript": "^5.6.3"
-  }
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ]
 }

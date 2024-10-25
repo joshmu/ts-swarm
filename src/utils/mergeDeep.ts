@@ -4,25 +4,25 @@
  */
 export function mergeDeep(target: any, source: any): any {
   if (Array.isArray(source)) {
-    return [...source]
+    return [...source];
   }
   if (typeof source !== 'object' || source === null) {
-    return source
+    return source;
   }
   return Object.keys(source).reduce(
     (acc, key) => {
-      const sourceValue = source[key]
-      const targetValue = acc[key]
+      const sourceValue = source[key];
+      const targetValue = acc[key];
 
       if (typeof sourceValue === 'string') {
         acc[key] =
-          (typeof targetValue === 'string' ? targetValue : '') + sourceValue
+          (typeof targetValue === 'string' ? targetValue : '') + sourceValue;
       } else {
-        acc[key] = mergeDeep(targetValue, sourceValue)
+        acc[key] = mergeDeep(targetValue, sourceValue);
       }
 
-      return acc
+      return acc;
     },
     { ...target },
-  )
+  );
 }

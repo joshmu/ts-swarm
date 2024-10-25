@@ -1,5 +1,5 @@
-import { ChatCompletionTool } from 'openai/resources'
-import { AgentFunctionDescriptor } from '../agent'
+import { ChatCompletionTool } from 'openai/resources';
+import { AgentFunctionDescriptor } from '../agent';
 
 /**
  * Converts an agent function descriptor to JSON.
@@ -26,5 +26,5 @@ export function agentFuncDescToJSON(
           .map(([key]) => key),
       },
     },
-  }
+  };
 }

@@ -71,7 +71,7 @@ TS-SWARM uses pnpm as its package manager. To install the project dependencies, 
 To use TS-SWARM in your project, import the necessary components:
 
 ```typescript
-import { Swarm, Agent, AgentFunction } from 'ts-swarm'
+import { Swarm, Agent, AgentFunction } from 'ts-swarm';
 ```
 
 Then, create agents and define their functions:
@@ -81,15 +81,15 @@ const weatherAgent = new Agent({
   name: 'Weather Agent',
   instructions: 'You are a weather assistant.',
   functions: [getWeather],
-})
+});
 
-const swarm = new Swarm(process.env.OPENAI_API_KEY)
+const swarm = new Swarm(process.env.OPENAI_API_KEY);
 
 // Run the swarm
 const result = await swarm.run({
   agent: weatherAgent,
   messages: [{ role: 'user', content: "What's the weather like in New York?" }],
-})
+});
 ```
 
 ## Examples

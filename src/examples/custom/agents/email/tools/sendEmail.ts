@@ -1,4 +1,4 @@
-import { AgentFunction } from '../../../../../src'
+import { AgentFunction } from '../../../../../agent';
 
 export const sendEmail: AgentFunction = {
   name: 'sendEmail',
@@ -7,11 +7,11 @@ export const sendEmail: AgentFunction = {
     subject,
     body,
   }: {
-    to: string
-    subject: string
-    body: string
+    to: string;
+    subject: string;
+    body: string;
   }): string => {
-    return `Sending email to ${to} with subject: ${subject}`
+    return `Sending email to ${to} with subject: ${subject}`;
   },
   descriptor: {
     name: 'sendEmail',
@@ -34,4 +34,4 @@ export const sendEmail: AgentFunction = {
       },
     },
   },
-}
+};

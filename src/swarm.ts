@@ -1,60 +1,63 @@
-import { OpenAI } from 'openai'
-import { mergeChunkAndToolCalls } from './utils/mergeChunkAndToolCalls'
-import { logger } from './utils/logger'
-import { validateAgentFuncArgs } from './utils/validateAgentFuncArgs'
+import { OpenAI } from 'openai';
+import { mergeChunkAndToolCalls } from './utils/mergeChunkAndToolCalls';
+import { logger } from './utils/logger';
+import { validateAgentFuncArgs } from './utils/validateAgentFuncArgs';
 import {
   Response,
   Result,
   createResponse,
   createResult,
   createToolFunction,
-} from './types'
-import { Agent, AgentFunction } from './agent'
-import { ChatCompletion, ChatCompletionMessageToolCall } from 'openai/resources'
-import { EventEmitter } from 'events'
-import { getChatCompletion } from './lib/chatCompletion'
+} from './types';
+import { Agent, AgentFunction } from './agent';
+import {
+  ChatCompletion,
+  ChatCompletionMessageToolCall,
+} from 'openai/resources';
+import { EventEmitter } from 'events';
+import { getChatCompletion } from './lib/chatCompletion';
 
-const CTX_VARS_NAME = 'context_variables'
+const CTX_VARS_NAME = 'context_variables';
 
 type SwarmRunOptions<TStream extends boolean> = {
-  agent: Agent
-  messages: Array<any>
-  context_variables?: Record<string, any>
-  model_override?: string
-  stream?: TStream
-  debug?: boolean
-  max_turns?: number
-  execute_tools?: boolean
-}
+  agent: Agent;
+  messages: Array<any>;
+  context_variables?: Record<string, any>;
+  model_override?: string;
+  stream?: TStream;
+  debug?: boolean;
+  max_turns?: number;
+  execute_tools?: boolean;
+};
 
 export class Swarm extends EventEmitter {
-  private readonly client: OpenAI
+  private readonly client: OpenAI;
 
   constructor(apiKey?: string) {
-    super()
+    super();
     if (apiKey) {
-      this.client = new OpenAI({ apiKey })
+      this.client = new OpenAI({ apiKey });
     } else {
       // Default configuration
-      this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     }
   }
 
   private handleFunctionResult(result: any, debug: boolean): Result {
     if (result && typeof result === 'object' && 'value' in result) {
-      return result
+      return result;
     } else if (result instanceof Agent) {
       return createResult({
         value: JSON.stringify({ assistant: result.name }),
         agent: result,
-      })
+      });
     } else {
       try {
-        return createResult({ value: String(result) })
+        return createResult({ value: String(result) });
       } catch (e: any) {
-        const errorMessage = `Failed to cast response to string: ${result}. Make sure agent functions return a string or Result object. Error: ${e.message}`
-        logger(debug, errorMessage)
-        throw new TypeError(errorMessage)
+        const errorMessage = `Failed to cast response to string: ${result}. Make sure agent functions return a string or Result object. Error: ${e.message}`;
+        logger(debug, errorMessage);
+        throw new TypeError(errorMessage);
       }
     }
   }
@@ -65,91 +68,95 @@ export class Swarm extends EventEmitter {
     context_variables: Record<string, any>,
     debug: boolean,
   ): Response {
-    const function_map: Record<string, AgentFunction> = {}
-    functions.forEach(func => {
-      function_map[func.name] = func
-    })
+    const function_map: Record<string, AgentFunction> = {};
+    functions.forEach((func) => {
+      function_map[func.name] = func;
+    });
 
     const partialResponse = createResponse({
       messages: [],
       agent: undefined,
       context_variables: {},
-    })
+    });
 
-    tool_calls.forEach(tool_call => {
-      const name = tool_call.function.name
+    tool_calls.forEach((tool_call) => {
+      const name = tool_call.function.name;
       if (!(name in function_map)) {
-        logger(debug, `Tool ${name} not found in function map.`)
+        logger(debug, `Tool ${name} not found in function map.`);
         partialResponse.messages.push({
           role: 'tool',
           tool_call_id: tool_call.id,
           tool_name: name,
           content: `Error: Tool ${name} not found.`,
-        })
-        return
+        });
+        return;
       }
 
-      const args = JSON.parse(tool_call.function.arguments)
+      const args = JSON.parse(tool_call.function.arguments);
       logger(
         debug,
         `Processing tool call: ${name} with arguments`,
         JSON.stringify(args),
-      )
+      );
 
-      const func = function_map[name]
+      const func = function_map[name];
       // Pass context_variables to agent functions if required
-      const hasFunc = func.func.length
+      const hasFunc = func.func.length;
       const hasContextVars = (func as Record<string, any>).hasOwnProperty(
         CTX_VARS_NAME,
-      )
-      if (hasFunc && hasContextVars) args[CTX_VARS_NAME] = context_variables
+      );
+      if (hasFunc && hasContextVars) args[CTX_VARS_NAME] = context_variables;
 
-      let validatedArgs: any
+      let validatedArgs: any;
       try {
-        validatedArgs = validateAgentFuncArgs(args, func.descriptor)
+        validatedArgs = validateAgentFuncArgs(args, func.descriptor);
       } catch (e: any) {
         logger(
           debug,
           `Argument validation failed for function ${name}: ${e.message}`,
-        )
+        );
         partialResponse.messages.push({
           role: 'tool',
           tool_call_id: tool_call.id,
           tool_name: name,
           content: `Error: ${e.message}`,
-        })
-        return
+        });
+        return;
       }
 
       logger(
         debug,
         `Processing tool call: ${name} with arguments`,
         JSON.stringify(validatedArgs),
-      )
+      );
 
       // Invoke the function with the validated arguments
-      const raw_result = func.func(validatedArgs)
-      logger(debug, 'Raw result:', raw_result)
+      const raw_result = func.func(validatedArgs);
+      logger(debug, 'Raw result:', raw_result);
 
-      const result: Result = this.handleFunctionResult(raw_result, debug)
+      const result: Result = this.handleFunctionResult(raw_result, debug);
       partialResponse.messages.push({
         role: 'tool',
         tool_call_id: tool_call.id,
         tool_name: name,
         content: result.value,
-      })
+      });
       partialResponse.context_variables = {
         ...partialResponse.context_variables,
         ...result.context_variables,
-      }
+      };
       if (result.agent) {
-        partialResponse.agent = result.agent
-        this.emit('agentSwitch', result.agent)
+        partialResponse.agent = result.agent;
+        this.emit('agentSwitch', result.agent);
       }
-      this.emit('toolCall', { name, args: validatedArgs, result: result.value })
-    })
+      this.emit('toolCall', {
+        name,
+        args: validatedArgs,
+        result: result.value,
+      });
+    });
 
-    return partialResponse
+    return partialResponse;
   }
 
   async *runAndStream(options: SwarmRunOptions<true>): AsyncIterable<any> {
@@ -161,12 +168,12 @@ export class Swarm extends EventEmitter {
       debug = false,
       max_turns = Infinity,
       execute_tools = true,
-    } = options
+    } = options;
 
-    let active_agent = agent
-    let ctx_vars = structuredClone(context_variables)
-    const history = structuredClone(messages)
-    const init_len = history.length
+    let active_agent = agent;
+    let ctx_vars = structuredClone(context_variables);
+    const history = structuredClone(messages);
+    const init_len = history.length;
 
     while (history.length - init_len < max_turns && active_agent) {
       const message: any = {
@@ -175,7 +182,7 @@ export class Swarm extends EventEmitter {
         role: 'assistant',
         function_call: null,
         tool_calls: {},
-      }
+      };
 
       // Update the getChatCompletion call
       const completion = await getChatCompletion(
@@ -186,34 +193,34 @@ export class Swarm extends EventEmitter {
         model_override,
         true,
         debug,
-      )
+      );
 
-      yield { delim: 'start' }
+      yield { delim: 'start' };
       for await (const chunk of completion) {
-        logger(debug, 'Received chunk:', JSON.stringify(chunk))
+        logger(debug, 'Received chunk:', JSON.stringify(chunk));
         const delta: OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta & {
-          sender?: string
-        } = chunk.choices[0].delta
+          sender?: string;
+        } = chunk.choices[0].delta;
         if (chunk.choices[0].delta.role === 'assistant') {
-          delta.sender = active_agent.name
+          delta.sender = active_agent.name;
         }
-        yield delta
-        delete delta.role
-        delete delta.sender
-        mergeChunkAndToolCalls(message, delta)
+        yield delta;
+        delete delta.role;
+        delete delta.sender;
+        mergeChunkAndToolCalls(message, delta);
       }
-      yield { delim: 'end' }
+      yield { delim: 'end' };
 
-      message.tool_calls = Object.values(message.tool_calls)
+      message.tool_calls = Object.values(message.tool_calls);
       if (message.tool_calls.length === 0) {
-        message.tool_calls = null
+        message.tool_calls = null;
       }
-      logger(debug, 'Received completion:', message)
-      history.push(message)
+      logger(debug, 'Received completion:', message);
+      history.push(message);
 
       if (!message.tool_calls || !execute_tools) {
-        logger(debug, 'Ending turn.')
-        break
+        logger(debug, 'Ending turn.');
+        break;
       }
 
       // Convert tool_calls to objects
@@ -222,13 +229,13 @@ export class Swarm extends EventEmitter {
           const func = createToolFunction({
             arguments: tc.function.arguments,
             name: tc.function.name,
-          })
+          });
           return {
             id: tc.id,
             function: func,
             type: tc.type,
-          }
-        })
+          };
+        });
 
       // Handle function calls, updating context_variables and switching agents
       const partial_response = this.handleToolCalls(
@@ -236,11 +243,11 @@ export class Swarm extends EventEmitter {
         active_agent.functions,
         ctx_vars,
         debug,
-      )
-      history.push(...partial_response.messages)
-      ctx_vars = { ...ctx_vars, ...partial_response.context_variables }
+      );
+      history.push(...partial_response.messages);
+      ctx_vars = { ...ctx_vars, ...partial_response.context_variables };
       if (partial_response.agent) {
-        active_agent = partial_response.agent
+        active_agent = partial_response.agent;
       }
     }
 
@@ -250,7 +257,7 @@ export class Swarm extends EventEmitter {
         agent: active_agent,
         context_variables: ctx_vars,
       }),
-    }
+    };
   }
 
   async run<TStream extends boolean = false>(
@@ -265,7 +272,7 @@ export class Swarm extends EventEmitter {
       debug = false,
       max_turns = Infinity,
       execute_tools = true,
-    } = options
+    } = options;
 
     if (stream) {
       return this.runAndStream({
@@ -276,13 +283,13 @@ export class Swarm extends EventEmitter {
         debug,
         max_turns,
         execute_tools,
-      }) as TStream extends true ? AsyncIterable<any> : never
+      }) as TStream extends true ? AsyncIterable<any> : never;
     }
 
-    let active_agent = agent
-    let ctx_vars = structuredClone(context_variables)
-    const history = structuredClone(messages)
-    const initialMessageLength = history.length
+    let active_agent = agent;
+    let ctx_vars = structuredClone(context_variables);
+    const history = structuredClone(messages);
+    const initialMessageLength = history.length;
 
     while (history.length - initialMessageLength < max_turns && active_agent) {
       // Update the getChatCompletion call
@@ -294,16 +301,16 @@ export class Swarm extends EventEmitter {
         model_override,
         false,
         debug,
-      )
+      );
 
-      const messageData = completion.choices[0].message
-      logger(debug, 'Received completion:', messageData)
-      const message: any = { ...messageData, sender: active_agent.name }
-      history.push(message) // Adjust as needed
+      const messageData = completion.choices[0].message;
+      logger(debug, 'Received completion:', messageData);
+      const message: any = { ...messageData, sender: active_agent.name };
+      history.push(message); // Adjust as needed
 
       if (!message.tool_calls || !execute_tools) {
-        logger(debug, 'Ending turn.')
-        break
+        logger(debug, 'Ending turn.');
+        break;
       }
 
       // Handle function calls, updating context_variables and switching agents
@@ -312,18 +319,18 @@ export class Swarm extends EventEmitter {
         active_agent.functions,
         ctx_vars,
         debug,
-      )
-      history.push(...partial_response.messages)
-      ctx_vars = { ...ctx_vars, ...partial_response.context_variables }
+      );
+      history.push(...partial_response.messages);
+      ctx_vars = { ...ctx_vars, ...partial_response.context_variables };
       if (partial_response.agent) {
-        active_agent = partial_response.agent
+        active_agent = partial_response.agent;
       }
     }
-    const newMessages = history.slice(initialMessageLength)
+    const newMessages = history.slice(initialMessageLength);
     return createResponse({
       messages: newMessages,
       agent: active_agent,
       context_variables: ctx_vars,
-    }) as TStream extends true ? never : Response
+    }) as TStream extends true ? never : Response;
   }
 }

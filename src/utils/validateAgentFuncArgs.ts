@@ -1,4 +1,4 @@
-import { AgentFunctionDescriptor } from '../agent'
+import { AgentFunctionDescriptor } from '../agent';
 
 /**
  * Validates the arguments against the function descriptor.
@@ -10,23 +10,23 @@ export function validateAgentFuncArgs(
 ): Record<string, any> {
   const validateParam = (key: string, param: any) => {
     if (param.required && !(key in args)) {
-      throw new Error(`Missing required parameter: ${key}`)
+      throw new Error(`Missing required parameter: ${key}`);
     }
     if (key in args) {
-      const expectedType = param.type.toLowerCase()
-      const actualType = typeof args[key]
+      const expectedType = param.type.toLowerCase();
+      const actualType = typeof args[key];
       if (actualType !== expectedType) {
         throw new Error(
           `Invalid type for parameter '${key}': expected '${expectedType}', got '${actualType}'`,
-        )
+        );
       }
-      return { [key]: args[key] }
+      return { [key]: args[key] };
     }
-    return {}
-  }
+    return {};
+  };
 
   return Object.entries(descriptor.parameters).reduce(
     (acc, [key, param]) => ({ ...acc, ...validateParam(key, param) }),
     {},
-  )
+  );
 }
