@@ -1,7 +1,8 @@
-# TS-SWARM
+# TS-SWARM 🐝
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
+[![npm version](https://img.shields.io/npm/v/ts-swarm.svg)](https://www.npmjs.com/package/ts-swarm)
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-green.svg)](https://openai.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
@@ -9,7 +10,7 @@
 TS-SWARM is a minimal TypeScript Agentic library inspired by the [OpenAI Swarm API](https://github.com/openai/swarm). It provides a flexible and extensible system for creating and managing AI agents that can collaborate, communicate, and solve complex tasks.
 
 > [!TIP]
-> Although originally ported from the [original Python codebase](https://github.com/openai/swarm), TS-SWARM diverges with a more functional typesafe approach and sprinkles in some additional features such as an Event Emitter. Future plans are to add zod validation and a more generic adapter for the chat completions so that other LLMs can be leveraged. ⚡
+> Initially ported to Typescript from the [original Python codebase](https://github.com/openai/swarm), TS-SWARM diverges with a more functional typesafe approach and sprinkles in some additional features such as Event Emitter. Future plans are to add zod validation and a more generic adapter for the chat completions so that other LLMs can be leveraged. ⚡
 
 ## Features
 
