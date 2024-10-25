@@ -74,7 +74,7 @@ const emailAgent = new Agent({
 });
 
 // Create swarm
-const swarm = new Swarm(process.env.OPENAI_API_KEY);
+const swarm = new Swarm({ apiKey: process.env.OPENAI_API_KEY });
 
 // Example usage
 async function runExample() {
@@ -86,7 +86,6 @@ async function runExample() {
   });
   console.log(
     'Weather:',
-    // @ts-ignore
     weatherResult.messages[weatherResult.messages.length - 1].content,
   );
 
@@ -101,7 +100,6 @@ async function runExample() {
   });
   console.log(
     'Email:',
-    // @ts-ignore
     emailResult.messages[emailResult.messages.length - 1].content,
   );
 }

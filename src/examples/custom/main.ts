@@ -50,7 +50,7 @@ weatherAgent.functions.push(transferBackToTriage);
 emailAgent.functions.push(transferBackToTriage);
 
 // Create swarm
-const swarm = new Swarm(process.env.OPENAI_API_KEY);
+const swarm = new Swarm({ apiKey: process.env.OPENAI_API_KEY });
 
 // Add event listeners
 swarm.on('agentSwitch', (newAgent: Agent) => {

@@ -6,7 +6,10 @@
 
 ## Overview
 
-TS-SWARM is a minimal TypeScript Agentic library inspired by the OpenAI Swarm API. It provides a flexible and extensible system for creating and managing AI agents that can collaborate, communicate, and solve complex tasks.
+TS-SWARM is a minimal TypeScript Agentic library inspired by the [OpenAI Swarm API](https://github.com/openai/swarm). It provides a flexible and extensible system for creating and managing AI agents that can collaborate, communicate, and solve complex tasks.
+
+> [!TIP]
+> Although originally ported from the [original Python codebase](https://github.com/openai/swarm), TS-SWARM diverges with a more functional typesafe approach and sprinkles in some additional features such as an Event Emitter. Future plans are to add zod validation and a more generic adapter for the chat completions so that other LLMs can be leveraged. ⚡
 
 ## Features
 
@@ -28,69 +31,73 @@ pnpm add ts-swarm
 
 ## Usage
 
-To use TS-SWARM in your project, import the necessary components:
-
 ```typescript
-import { Swarm, Agent, AgentFunction } from 'ts-swarm';
-```
+import { Swarm, Agent, AgentFunction, createResult } from 'ts-swarm';
 
-Then, create agents and define their functions:
+const getWeather: AgentFunction = {
+  name: 'getWeather',
+  func: ({ location }: { location: string }): string => {
+    // mock API call...
+    return `The weather in ${location} is sunny with a high of 67°F.`;
+  },
+  descriptor: {
+    name: 'getWeather',
+    description: 'Get the weather for a specific location',
+    parameters: {
+      location: {
+        type: 'string',
+        required: true,
+        description: 'The location to get weather for',
+      },
+    },
+  },
+};
 
-```typescript
 const weatherAgent = new Agent({
   name: 'Weather Agent',
   instructions: 'You are a weather assistant.',
   functions: [getWeather],
 });
 
-const swarm = new Swarm(process.env.OPENAI_API_KEY);
+const transferToWeatherAgent: AgentFunction = {
+  name: 'transferToWeatherAgent',
+  func: () => createResult({ agent: weatherAgent }),
+  descriptor: {
+    name: 'transferToWeatherAgent',
+    description: 'Transfer the conversation to the Weather Agent',
+    parameters: {},
+  },
+};
+
+const triageAgent = new Agent({
+  name: 'Triage Agent',
+  instructions:
+    "You are a helpful triage agent. Determine which agent is best suited to handle the user's request, and transfer the conversation to that agent.",
+  functions: [transferToWeatherAgent],
+  tool_choice: 'auto',
+  parallel_tool_calls: false,
+});
+
+const swarm = new Swarm({ apiKey: process.env.OPENAI_API_KEY });
 
 // Run the swarm
 const result = await swarm.run({
-  agent: weatherAgent,
+  agent: triageAgent,
   messages: [{ role: 'user', content: "What's the weather like in New York?" }],
 });
+
+const lastMessage = result.messages.at(-1);
+console.log(lastMessage.content);
+// result: The weather in New York is sunny with a high of 67°F.
 ```
 
-## Architecture
+The usage example demonstrates a simple multi-agent system that allows for delegation of tasks to specialized agents.
 
-TS-SWARM follows a modular architecture that allows for easy extension and customization.
+![Swarm Diagram](assets/swarm_diagram.png)
 
-### Core Components
-
-1. **Swarm**: The main orchestrator that manages agents and their interactions.
-2. **Agent**: Represents an AI agent with specific capabilities and instructions.
-3. **AgentFunction**: Defines the structure and behavior of functions that agents can use.
-
-### Example Sequence Flow
-
-Here's a simplified sequence diagram showing how the components interact in a typical scenario:
-
-```mermaid
-sequenceDiagram
-participant User
-participant Swarm
-participant Agent
-participant AgentFunction
-participant OpenAI API
-User->>Swarm: Run with initial message
-Swarm->>Agent: Process message
-Agent->>OpenAI API: Generate response
-OpenAI API-->>Agent: Response with tool calls
-Agent->>AgentFunction: Execute tool call
-AgentFunction-->>Agent: Tool call result
-Agent->>Swarm: Updated response and context
-Swarm->>User: Final result
-```
-
-1. The user initiates a request to the Swarm with an initial message.
-2. The Swarm passes the message to the appropriate Agent.
-3. The Agent processes the message and uses the OpenAI API to generate a response.
-4. If the response includes tool calls, the Agent executes the corresponding AgentFunctions.
-5. The Agent updates its response and context based on the tool call results.
-6. The Swarm returns the final result to the user.
-
-This process can repeat multiple times, with the Swarm managing context and potentially switching between different specialized Agents as needed.
+To see more examples, check out the [examples](./src/examples) directory.
+Otherwise, for more examples refer to the original port from Python: [swarm](https://github.com/openai/swarm)
+The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
 
 For more information on the architecture, see our [ARCHITECTURE.md](./ARCHITECTURE.md).
 

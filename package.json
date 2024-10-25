@@ -40,6 +40,7 @@
     "local:release": "changeset version && changeset publish",
     "prepublishOnly": "pnpm run ci",
     "example:basic": "npx tsx src/examples/basic/main.ts",
+    "example:weather": "npx tsx src/examples/weather/main.ts",
     "example:custom": "npx tsx src/examples/custom/main.ts"
   },
   "dependencies": {

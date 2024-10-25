@@ -33,7 +33,7 @@ type SwarmRunOptions<TStream extends boolean> = {
 export class Swarm extends EventEmitter {
   private readonly client: OpenAI;
 
-  constructor(apiKey?: string) {
+  constructor({ apiKey }: { apiKey?: string } = {}) {
     super();
     if (apiKey) {
       this.client = new OpenAI({ apiKey });

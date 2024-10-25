@@ -1,6 +1,8 @@
 # Architecture
 
-TS-SWARM follows a modular architecture that allows for easy extension and customization.
+Swarm focuses on making agent coordination and execution lightweight, highly controllable, and easily testable.
+
+![Swarm Diagram](assets/swarm_diagram.png)
 
 ## Core Components
 

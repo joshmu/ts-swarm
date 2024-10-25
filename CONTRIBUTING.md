@@ -51,7 +51,10 @@ If you encounter any prettier issues, you can fix them by running `pnpm format`.
 
 1. run `pnpm install` in the root
 2. copy `.env.example` to `.env` and add your OpenAI API key
-3. run `pnpm example:basic` or `pnpm example:custom` to run the examples
+3. run examples:
+   1. `pnpm example:basic`
+   2. `pnpm example:weather` - as per the README usage example
+   3. `pnpm example:custom`
 
 For more information on the architecture, see our [ARCHITECTURE.md](./ARCHITECTURE.md).
 
