@@ -18,6 +18,10 @@ export type Agent = {
   init: (
     options: Partial<Parameters<typeof generateText>[0]>,
   ) => ReturnType<typeof generateText>;
+  /**
+   * tools available to the agent
+   */
+  tools: Record<string, CoreTool>;
 };
 
 /**
@@ -29,6 +33,7 @@ export function createAgent({
   id,
   model = openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   maxSteps = 5,
+  tools,
   ...createConfig
 }: Partial<Parameters<typeof generateText>[0]> & {
   id: string;
@@ -38,12 +43,14 @@ export function createAgent({
     _type: 'agent',
     id,
     init,
+    tools,
   };
 
   async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
       maxSteps,
+      tools: agent.tools,
       ...createConfig,
       ...initConfig,
     });
@@ -59,22 +66,15 @@ export function createAgent({
 export function transferToAgent(agent: Agent): Record<string, CoreTool> {
   return {
     [`transferTo${agent.id}`]: tool({
-      description: `A tool to transfer to the ${agent.id} agent.`,
+      description: `A tool to transfer responsibility to the ${agent.id} agent.`,
       parameters: z.object({
         agentId: z
           .literal(agent.id)
           .describe(`The id of the ${agent.id} agent.`),
       }),
-      // no execute function - invoking it will terminate the agent
-      // execute: async () => {
-      //   console.log(`Transferring to ${agent.id}...`);
-      //   return {
-      //     agentId: agent.id,
-      //   };
-      // },
     }),
     [`transferTo${agent.id}Answer`]: tool({
-      // answer tool: the LLM will provide a structured answer
+      // answer tool: the LLM will provide a structured answer which can be leveraged
       description: `A tool for providing the final answer of which agent id to transfer to.`,
       parameters: z.object({
         agentId: z
@@ -89,7 +89,9 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
 (async () => {
   const weatherAgent = createAgent({
     id: 'Weather_Agent',
-    system: 'You are a weather agent. You need to provide the weather.',
+    system: `
+      You are a weather agent. You need to provide the weather.
+    `,
     toolChoice: 'required',
     tools: {
       weather: tool({
@@ -123,21 +125,41 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
 
   const triageAgent = createAgent({
     id: 'Triage_Agent',
-    system:
-      'You are a triage agent. You need to determine which type of agent to transfer to based on the user query.',
+    system: `
+      You are a triage agent. You need to determine which type of agent to transfer to based on the user query.
+    `,
     tools: {
       ...transferToAgent(weatherAgent),
       ...transferToAgent(emailAgent),
     },
+    /**
+     * tool choice is auto for the triage agent since we want to acquire context from other agents
+     * and get to a point where it can provide a final answer
+     * after which there will be no transfer requests and thus the loop will end
+     */
+    toolChoice: 'auto',
   });
 
+  // give the agents the ability to transfer back to the triage agent
+  weatherAgent.tools = {
+    ...weatherAgent.tools,
+    ...transferToAgent(triageAgent),
+  };
+  emailAgent.tools = {
+    ...emailAgent.tools,
+    ...transferToAgent(triageAgent),
+  };
+
+  /**
+   * Agent registry to be used for transferring responsibility
+   */
   const agents = [weatherAgent, emailAgent, triageAgent];
 
   /**
    * Loop until we have a response which does not include a transfer request
    */
   let activeAgent = triageAgent;
-  let query: string = 'What is the weather in Tokyo?';
+  let query: string = process.argv[2] || 'What is the weather in Tokyo?';
   while (activeAgent) {
     const result = await activeAgent.init({
       prompt: query,
@@ -172,8 +194,8 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
 
     console.log('--------------------------------');
     console.log(`${activeAgent.id}: ${lastMessageText}`);
-    // console.log(`toolCalls: ${JSON.stringify(toolCalls, null, 2)}`);
-    // console.log(`toolResults: ${JSON.stringify(toolResults, null, 2)}`);
+    console.log(`toolCalls: ${JSON.stringify(toolCalls, null, 2)}`);
+    console.log(`toolResults: ${JSON.stringify(toolResults, null, 2)}`);
 
     /**
      * Transfer to the new agent if we have one
