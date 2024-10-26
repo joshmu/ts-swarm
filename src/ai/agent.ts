@@ -29,19 +29,20 @@ export function createAgent({
   id,
   model = openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   maxSteps = 5,
-  tools = {},
   ...createConfig
-}: Partial<Parameters<typeof generateText>[0]> & { id: string }): Agent {
+}: Partial<Parameters<typeof generateText>[0]> & {
+  id: string;
+  tools: CoreTool[] | Record<string, CoreTool>;
+}): Agent {
   const agent: Agent = {
     _type: 'agent',
-    id: id.replace(/\s/g, '_'),
+    id,
     init,
   };
 
   async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
-      tools,
       maxSteps,
       ...createConfig,
       ...initConfig,
@@ -52,21 +53,35 @@ export function createAgent({
 }
 
 /**
- * Swarm logic to allow for multiple agents to work together
+ * Util to create the agent transfer tools
+ * @see https://sdk.vercel.ai/docs/ai-sdk-core/agents#example-1
  */
-export function createSwarm() {}
-
 export function transferToAgent(agent: Agent): Record<string, CoreTool> {
   return {
     [`transferTo${agent.id}`]: tool({
       description: `A tool to transfer to the ${agent.id} agent.`,
-      parameters: z.object({}),
-      execute: async () => {
-        console.log(`Transferring to ${agent.id}...`);
-        return {
-          agentId: agent.id,
-        };
-      },
+      parameters: z.object({
+        agentId: z
+          .literal(agent.id)
+          .describe(`The id of the ${agent.id} agent.`),
+      }),
+      // no execute function - invoking it will terminate the agent
+      // execute: async () => {
+      //   console.log(`Transferring to ${agent.id}...`);
+      //   return {
+      //     agentId: agent.id,
+      //   };
+      // },
+    }),
+    [`transferTo${agent.id}Answer`]: tool({
+      // answer tool: the LLM will provide a structured answer
+      description: `A tool for providing the final answer of which agent id to transfer to.`,
+      parameters: z.object({
+        agentId: z
+          .literal(agent.id)
+          .describe(`The id of the ${agent.id} agent.`),
+      }),
+      // no execute function - invoking it will terminate the agent
     }),
   };
 }
@@ -128,35 +143,58 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
       prompt: query,
     });
 
+    const { toolCalls, toolResults } = result;
+
+    /**
+     * @todo: need to review how best to grab the text messages...
+     */
     const messages = result.response.messages.flatMap((m: any) => m.content);
     const textMessages = messages.filter((m: any) => m.type === 'text');
-    const toolCalls = messages.filter((m: any) => m.type === 'tool-call');
-    const toolResults = messages.filter((m: any) => m.type === 'tool-result');
     const lastMessage = messages.at(-1);
     const lastTextMessage = textMessages.at(-1);
-    const lastToolResult = toolResults.at(-1);
-    const transferAgentId = lastToolResult?.result?.agentId;
+
+    /**
+     * Determine if we need to transfer to a new agent
+     */
+    const newAgentId = toolCalls.find(isTransferAgentCall)?.args.agentId;
+    const newAgent = agents.find((a) => a.id === newAgentId);
+
+    /**
+     * Grab the last valid string message otherwise fallback to the initial query
+     * @todo: review how context should be passed between agents
+     */
+    const nextPrompt = lastTextMessage?.text || lastMessage?.result || query;
+    // Display message - latest text or assumed transferring to another agent
+    const lastMessageText =
+      lastTextMessage?.text ||
+      lastMessage?.result ||
+      `transferring to ${newAgent?.id}`;
 
     console.log('--------------------------------');
-    console.log(
-      `${activeAgent.id}: ${lastMessage?.text || lastMessage?.result}`,
-    );
+    console.log(`${activeAgent.id}: ${lastMessageText}`);
+    // console.log(`toolCalls: ${JSON.stringify(toolCalls, null, 2)}`);
+    // console.log(`toolResults: ${JSON.stringify(toolResults, null, 2)}`);
 
-    if (transferAgentId) {
-      const nextAgent = agents.find((a) => a.id === transferAgentId);
-      if (nextAgent) {
-        activeAgent = nextAgent;
-        query =
-          (lastTextMessage as any)?.text ||
-          ((lastMessage as any)?.result as string);
-      } else {
-        console.error('No next agent found');
-        break;
-      }
+    /**
+     * Transfer to the new agent if we have one
+     * Otherwise, we are done
+     */
+    if (newAgent) {
+      activeAgent = newAgent;
+      query = nextPrompt;
     } else {
-      console.log('--------------------------------');
-      console.log('done.');
       break;
     }
   }
+
+  console.log('--------------------------------');
+  console.log('done.');
 })();
+
+function isTransferAgentCall(tool: any) {
+  return (
+    tool.type === 'tool-call' &&
+    tool.toolName.startsWith('transferTo') &&
+    tool.args.hasOwnProperty('agentId')
+  );
+}
