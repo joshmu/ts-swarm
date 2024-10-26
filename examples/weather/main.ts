@@ -1,4 +1,5 @@
-import { Swarm, Agent, createAgentFunction } from '../../index';
+import 'dotenv/config';
+import { Swarm, Agent, createAgentFunction } from '../../src/index';
 
 const getWeather = createAgentFunction({
   name: 'getWeather',

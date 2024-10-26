@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Swarm, Agent, createAgentFunction } from '../../index';
+import { Swarm, Agent, createAgentFunction } from '../../src/index';
 import { emailAgent } from './agents/email/agent';
 import { weatherAgent } from './agents/weather/agent';
 
