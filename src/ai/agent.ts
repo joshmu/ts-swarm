@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { openai } from '@ai-sdk/openai';
-import { generateText, tool } from 'ai';
-import * as mathjs from 'mathjs';
+import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
 
 export type Agent = {
@@ -10,13 +9,15 @@ export type Agent = {
    */
   _type: 'agent';
   /**
-   * unique identifier for the agent
+   * unique identifier for the agent - must not include spaces
    */
-  id: 'Math Agent';
+  id: string;
   /**
    * logic to initialize the agent
    */
-  init: () => ReturnType<typeof generateText>;
+  init: (
+    options: Partial<Parameters<typeof generateText>[0]>,
+  ) => ReturnType<typeof generateText>;
 };
 
 /**
@@ -25,69 +26,137 @@ export type Agent = {
  * Will place some sane defaults to begin with and then will override
  */
 export function createAgent({
+  id,
   model = openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   maxSteps = 5,
   tools = {},
-  ...rest
-}: Partial<Parameters<typeof generateText>[0]> = {}): Agent {
+  ...createConfig
+}: Partial<Parameters<typeof generateText>[0]> & { id: string }): Agent {
   const agent: Agent = {
     _type: 'agent',
-    id: 'Math Agent',
+    id: id.replace(/\s/g, '_'),
     init,
   };
 
-  async function init() {
+  async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
-      tools: {
-        calculate: tool({
-          description:
-            'A tool for evaluating mathematical expressions. Example expressions: ' +
-            "'1.2 * (2 + 4.5)', '12.7 cm to inch', 'sin(45 deg) ^ 2'.",
-          parameters: z.object({ expression: z.string() }),
-          execute: async ({ expression }) => mathjs.evaluate(expression),
-        }),
-        // answer tool: the LLM will provide a structured answer
-        answer: tool({
-          description: 'A tool for providing the final answer.',
-          parameters: z.object({
-            steps: z.array(
-              z.object({
-                calculation: z.string(),
-                reasoning: z.string(),
-              }),
-            ),
-            answer: z.string(),
-          }),
-          // no execute function - invoking it will terminate the agent
-        }),
-        ...tools,
-      },
-      toolChoice: 'required',
+      tools,
       maxSteps,
-      system:
-        'You are solving math problems. ' +
-        'Reason step by step. ' +
-        'Use the calculator when necessary. ' +
-        'The calculator can only do simple additions, subtractions, multiplications, and divisions. ' +
-        'When you give the final answer, provide an explanation for how you got it.',
-      prompt:
-        'A taxi driver earns $9461 per 1-hour work. ' +
-        'If he works 12 hours a day and in 1 hour he uses 14-liters petrol with price $134 for 1-liter. ' +
-        'How much money does he earn in one day?',
-      ...rest,
+      ...createConfig,
+      ...initConfig,
     });
   }
 
   return agent;
 }
 
+/**
+ * Swarm logic to allow for multiple agents to work together
+ */
+export function createSwarm() {}
+
+export function transferToAgent(agent: Agent): Record<string, CoreTool> {
+  return {
+    [`transferTo${agent.id}`]: tool({
+      description: `A tool to transfer to the ${agent.id} agent.`,
+      parameters: z.object({}),
+      execute: async () => {
+        console.log(`Transferring to ${agent.id}...`);
+        return {
+          agentId: agent.id,
+        };
+      },
+    }),
+  };
+}
+
 (async () => {
-  const testAgent = createAgent();
-  const result = await testAgent.init();
-  console.log(
-    result.response.messages
-      .map((m) => JSON.stringify(m.content, null, 2))
-      .join('\n\n'),
-  );
+  const weatherAgent = createAgent({
+    id: 'Weather_Agent',
+    system: 'You are a weather agent. You need to provide the weather.',
+    toolChoice: 'required',
+    tools: {
+      weather: tool({
+        description: 'A tool for providing the weather.',
+        parameters: z.object({ location: z.string() }),
+        execute: async ({ location }) => {
+          return `The weather in ${location} is sunny.`;
+        },
+      }),
+    },
+  });
+
+  const emailAgent = createAgent({
+    id: 'Email_Agent',
+    system: 'You are an email agent. You need to send an email.',
+    toolChoice: 'required',
+    tools: {
+      email: tool({
+        description: 'A tool for sending an email.',
+        parameters: z.object({
+          to: z.string(),
+          subject: z.string(),
+          body: z.string(),
+        }),
+        execute: async ({ to, subject, body }) => {
+          return `Email sent to ${to} with subject "${subject}" and body "${body}".`;
+        },
+      }),
+    },
+  });
+
+  const triageAgent = createAgent({
+    id: 'Triage_Agent',
+    system:
+      'You are a triage agent. You need to determine which type of agent to transfer to based on the user query.',
+    tools: {
+      ...transferToAgent(weatherAgent),
+      ...transferToAgent(emailAgent),
+    },
+  });
+
+  const agents = [weatherAgent, emailAgent, triageAgent];
+
+  /**
+   * Loop until we have a response which does not include a transfer request
+   */
+  let activeAgent = triageAgent;
+  let query: string = 'What is the weather in Tokyo?';
+  while (activeAgent) {
+    const result = await activeAgent.init({
+      prompt: query,
+    });
+
+    const messages = result.response.messages.flatMap((m: any) => m.content);
+    const textMessages = messages.filter((m: any) => m.type === 'text');
+    const toolCalls = messages.filter((m: any) => m.type === 'tool-call');
+    const toolResults = messages.filter((m: any) => m.type === 'tool-result');
+    const lastMessage = messages.at(-1);
+    const lastTextMessage = textMessages.at(-1);
+    const lastToolResult = toolResults.at(-1);
+    const transferAgentId = lastToolResult?.result?.agentId;
+
+    console.log('--------------------------------');
+    console.log(
+      `${activeAgent.id}: ${lastMessage?.text || lastMessage?.result}`,
+    );
+
+    if (transferAgentId) {
+      const nextAgent = agents.find((a) => a.id === transferAgentId);
+      if (nextAgent) {
+        activeAgent = nextAgent;
+        query =
+          (lastTextMessage as any)?.text ||
+          ((lastMessage as any)?.result as string);
+      } else {
+        console.error('No next agent found');
+        break;
+      }
+    } else {
+      console.log('--------------------------------');
+      console.log('done.');
+      break;
+    }
+  }
 })();
