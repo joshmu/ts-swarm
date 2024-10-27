@@ -165,7 +165,7 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
       prompt: query,
     });
 
-    const { toolCalls, toolResults } = result;
+    const { toolCalls, toolResults, text } = result;
 
     /**
      * @todo: need to review how best to grab the text messages...
@@ -186,16 +186,14 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
      * @todo: review how context should be passed between agents
      */
     const nextPrompt = lastTextMessage?.text || lastMessage?.result || query;
-    // Display message - latest text or assumed transferring to another agent
-    const lastMessageText =
-      lastTextMessage?.text ||
-      lastMessage?.result ||
-      `transferring to ${newAgent?.id}`;
 
-    console.log('--------------------------------');
-    console.log(`${activeAgent.id}: ${lastMessageText}`);
-    console.log(`toolCalls: ${JSON.stringify(toolCalls, null, 2)}`);
-    console.log(`toolResults: ${JSON.stringify(toolResults, null, 2)}`);
+    logger({
+      activeAgent,
+      newAgent,
+      result,
+      lastTextMessage,
+      lastMessage,
+    });
 
     /**
      * Transfer to the new agent if we have one
@@ -219,4 +217,29 @@ function isTransferAgentCall(tool: any) {
     tool.toolName.startsWith('transferTo') &&
     tool.args.hasOwnProperty('agentId')
   );
+}
+
+function logger({
+  activeAgent,
+  newAgent,
+  result,
+  lastTextMessage,
+  lastMessage,
+}: {
+  activeAgent: Agent;
+  newAgent?: Agent;
+  result: Awaited<ReturnType<typeof generateText>>;
+  lastTextMessage: any;
+  lastMessage: any;
+}) {
+  // Display message - latest text or assumed transferring to another agent
+  const lastMessageText =
+    lastTextMessage?.text ||
+    lastMessage?.result ||
+    (newAgent ? `transferring to ${newAgent?.id}` : '');
+
+  console.log('--------------------------------');
+  console.log(`${activeAgent.id}: ${lastMessageText}`);
+  // console.log(`toolCalls: ${JSON.stringify(result.toolCalls, null, 2)}`);
+  // console.log(`toolResults: ${JSON.stringify(result.toolResults, null, 2)}`);
 }
