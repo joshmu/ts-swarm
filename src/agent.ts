@@ -13,7 +13,7 @@ export class Agent {
 
   constructor(params: Partial<Agent> = {}) {
     this.name = params.name ?? 'Agent';
-    this.model = params.model ?? 'gpt-4o-mini';
+    this.model = params.model ?? 'gpt-4o-2024-08-06';
     this.instructions = params.instructions ?? 'You are a helpful agent.';
     this.functions = params.functions ?? [];
     this.tool_choice = params.tool_choice;
