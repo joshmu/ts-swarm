@@ -1,14 +1,5 @@
 import { Agent } from './agent';
-import {
-  CoreAssistantMessage,
-  CoreMessage,
-  CoreTool,
-  CoreToolMessage,
-  generateText,
-  ToolContent,
-} from 'ai';
-
-const CTX_VARS_NAME = 'context_variables';
+import { CoreMessage, generateText } from 'ai';
 
 /**
  * Swarm orchestration of agents
@@ -22,18 +13,13 @@ export class Swarm {
   }
 
   /**
-   * Normalize the result of the agent function
-   * Takes in to account the possibility of the result being an agent
-   */
-  private normalizeToolResult(result: any) {}
-
-  /**
    * Handle the list of tool call responses from the LLM
    */
   private handleToolCalls(
     toolCalls: Tools,
     toolResults: ToolResults,
     response: ReturnGenerateText['response'],
+    activeAgent: Agent,
   ) {
     /**
      * determine whether we need to update the agent
@@ -51,38 +37,13 @@ export class Swarm {
       return partialResponse;
     }
 
-    // if (toolCalls.length) {
-    //   partialResponse.messages.push({
-    //     role: 'assistant',
-    //     content: toolCalls,
-    //   } satisfies CoreAssistantMessage);
-    // }
-
     if (toolResults.length) {
       partialResponse.messages.push(...response.messages);
-      // partialResponse.messages.push({
-      //   role: 'tool',
-      //   content: toolResults,
-      // } satisfies CoreToolMessage);
+      this.log(
+        activeAgent,
+        `Tool Result: ${toolResults.map((t) => (t as any)?.result ?? '').join(', ')}`,
+      );
     }
-
-    /**
-     * Iterate over the tool results and append to history
-     */
-    // toolResults.forEach((toolResult: ToolResults[number]) => {
-
-    //   partialResponse.messages.push({
-    //     /**
-    //      * ! hack we set role as assistant to avoid breaking the zod checks in ai/sdk
-    //      * @todo: is there a better way?
-    //      */
-    //     role: 'tool',
-    //     content:
-    //       (toolResult as { result: string }).result ??
-    //       ('' as unknown as ToolContent),
-    //   } as unknown as CoreMessage);
-    // });
-    // @todo: could also try the above logic to simply be partial_response.messages.push(...toolResults)
 
     return partialResponse;
   }
@@ -102,7 +63,7 @@ export class Swarm {
    * Handle LLM call
    */
   private async getChatCompletion(options: SwarmRunOptions) {
-    const { agent, messages, contextVariables, modelOverride, debug } = options;
+    const { agent, messages, debug } = options;
     this.debugLog(debug, `passing ${messages.length} messages to ${agent.id}`);
     this.debugLog(
       debug,
@@ -135,9 +96,16 @@ export class Swarm {
   private createSwarmResponse(params: Partial<SwarmResult> = {}): SwarmResult {
     return {
       messages: params.messages ?? [],
-      agent: params.agent,
+      /**
+       * @todo: this type is not correct...
+       */
+      agent: params.agent!,
       contextVariables: params.contextVariables ?? {},
     };
+  }
+
+  private log(agent: Agent, message: string) {
+    console.log(`${agent.id}: ${message}`);
   }
 
   private debugLog(
@@ -157,9 +125,7 @@ export class Swarm {
       contextVariables = {},
       modelOverride,
       debug = false,
-      // maxTurns = Infinity,
       maxTurns = 10,
-      executeTools = true,
     } = options;
 
     /**
@@ -204,6 +170,7 @@ export class Swarm {
 
       /**
        * If the tool result is a duplicate of what we already have in history then break
+       * @todo: have not seen this occur anymore, may be worthwhile removing
        */
       if (history.at(-1)?.content === (toolResults.at(-1) as any)?.result) {
         console.log(
@@ -212,6 +179,10 @@ export class Swarm {
         activeAgent = null;
         break;
       }
+      /**
+       * @todo: there should be another guard scenario when we are caught in a transfer agent loop
+       * when this occurs we should also break
+       */
 
       /**
        * If there are no tool calls, end the turn
@@ -228,6 +199,7 @@ export class Swarm {
         toolCalls,
         toolResults,
         response,
+        activeAgent,
       );
 
       /**
@@ -251,6 +223,7 @@ export class Swarm {
        * Update active agent
        */
       if (partialResponse.agent) {
+        this.log(activeAgent, `Transferring to ${partialResponse.agent.id}`);
         this.debugLog(debug, `Transferring to ${partialResponse.agent.id}`);
         activeAgent = partialResponse.agent;
       }
@@ -285,16 +258,14 @@ type SwarmRunOptions = {
   modelOverride?: string;
   debug?: boolean;
   maxTurns?: number;
-  executeTools?: boolean;
 };
 
 type ReturnGenerateText = Awaited<ReturnType<typeof generateText>>;
 type Tools = ReturnGenerateText['toolCalls'];
 type ToolResults = ReturnGenerateText['toolResults'];
-type Text = ReturnGenerateText['text'];
 
 type SwarmResult = {
   messages: (CoreMessage & SwarmMessageMeta)[];
-  agent?: Agent;
+  agent: Agent;
   contextVariables: Record<string, any>;
 };
