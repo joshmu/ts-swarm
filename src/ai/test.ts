@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { openai } from '@ai-sdk/openai';
 import { CoreMessage, CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
+import { Swarm } from './swarm';
 
 export type Agent = {
   /**
@@ -91,8 +92,10 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
     id: 'Weather_Agent',
     system: `
       You are a weather agent. You need to provide the weather.
+      You can only use the weather tool to answer the question.
+      Once a tool has been used to access the whether you should end your turn by transferring back to the triage agent.
     `,
-    toolChoice: 'required',
+    toolChoice: 'auto',
     tools: {
       weather: tool({
         description: 'A tool for providing the weather.',
@@ -151,106 +154,25 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
     ...transferToAgent(triageAgent),
   };
 
-  /**
-   * Agent registry to be used for transferring responsibility
-   */
-  const agents = [weatherAgent, emailAgent, triageAgent];
-
-  /**
-   * Loop until we have a response which does not include a transfer request
-   */
-  let activeAgent = triageAgent;
   let messages: CoreMessage[] = [
     {
       role: 'user',
       content: process.argv[2] || 'What is the weather in Tokyo?',
     },
-    {
-      role: 'assistant',
-      content:
-        'The weather in Tokyo is sunny with a temperature of 30 degrees Celsius.',
-    },
   ];
-  let finalText: string = '';
-  while (activeAgent) {
-    const result = await activeAgent.init({ messages });
-    console.log('result:', result);
-    return;
 
-    const { toolCalls, toolResults, text } = result;
+  const swarm = new Swarm({
+    agents: [weatherAgent, emailAgent, triageAgent],
+  });
 
-    console.log({
-      toolCalls,
-      toolResults,
-      text,
-      messages,
-    });
+  const result = await swarm.run({
+    agent: triageAgent,
+    messages,
+    debug: true,
+  });
 
-    /**
-     * Determine if we need to transfer to a new agent
-     */
-    const newAgentId = toolCalls.find(isTransferAgentCall)?.args.agentId;
-    const newAgent = agents.find((a) => a.id === newAgentId);
-
-    /**
-     * if we have tool results, add them to the messages
-     */
-    if (toolResults.length) {
-      messages.push({
-        role: 'system',
-        content: toolResults.map((r: any) => r?.result).join('\n'),
-      });
-    }
-
-    /**
-     * Transfer to the new agent if we have one
-     * Otherwise, we are done
-     */
-    if (newAgent) {
-      if (text) {
-        console.log(`${activeAgent?.id}: ${text}`);
-      }
-      activeAgent = newAgent;
-    } else if (text) {
-      finalText = text;
-      break;
-    }
-  }
-
+  // console.dir(result, { depth: Infinity });
   console.log('--------------------------------');
-  console.log(`${activeAgent?.id}: ${finalText}`);
+  console.dir(result.messages, { depth: Infinity });
+  console.log('--------------------------------');
 })();
-
-function isTransferAgentCall(tool: any) {
-  return (
-    tool.type === 'tool-call' &&
-    tool.toolName.startsWith('transferTo') &&
-    tool.args.hasOwnProperty('agentId')
-  );
-}
-
-function logger({
-  activeAgent,
-  newAgent,
-  result,
-  lastTextMessage,
-  lastMessage,
-}: {
-  activeAgent: Agent;
-  newAgent?: Agent;
-  result: Awaited<ReturnType<typeof generateText>>;
-  lastTextMessage: any;
-  lastMessage: any;
-}) {
-  // Display message - latest text or assumed transferring to another agent
-  const lastMessageText =
-    lastTextMessage?.text ||
-    lastMessage?.result ||
-    (newAgent ? `transferring to ${newAgent?.id}` : '');
-
-  console.log('--------------------------------');
-  console.log(`${activeAgent.id}: ${lastMessageText}`);
-  // console.log(`toolCalls: ${JSON.stringify(result.toolCalls, null, 2)}`);
-  // console.log(`toolResults: ${JSON.stringify(result.toolResults, null, 2)}`);
-  console.log(result);
-}
