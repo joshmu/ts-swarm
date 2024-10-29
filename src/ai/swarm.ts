@@ -1,6 +1,12 @@
 import { Agent } from './agent';
 import { CoreMessage, generateText } from 'ai';
 
+const colors = {
+  reset: '\x1b[0m',
+  blue: '\x1b[34m', // for agents
+  green: '\x1b[32m', // for user
+} as const;
+
 /**
  * Swarm orchestration of agents
  * ! does not handle streaming
@@ -104,7 +110,7 @@ export class Swarm {
   }
 
   private log(agent: Agent, message: string) {
-    console.log(`${agent.id}: ${message}`);
+    console.log(`${colors.blue}🤖 ${agent.id}:${colors.reset} ${message}`);
   }
 
   private debugLog(
@@ -223,7 +229,6 @@ export class Swarm {
        */
       if (partialResponse.agent) {
         this.log(activeAgent, `Transferring to ${partialResponse.agent.id}`);
-        this.debugLog(debug, `Transferring to ${partialResponse.agent.id}`);
         activeAgent = partialResponse.agent;
       }
     }
@@ -231,6 +236,7 @@ export class Swarm {
     /**
      * Return the result
      * However only the messages associated to this run
+     * And not including the user query which we would already be aware of
      */
     const newMessages = history.slice(initialMessageLength);
     return this.createSwarmResponse({

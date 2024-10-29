@@ -61,7 +61,7 @@ export async function runSwarmLoop({
     });
 
     activeAgent = result.agent;
-    messages = result.messages;
+    messages = [...messages, ...result.messages];
 
     console.log(
       `${colors.blue}🤖 ${result.agent.id}:${colors.reset} ${result.messages.at(-1)?.content}`,
