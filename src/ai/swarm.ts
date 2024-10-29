@@ -130,7 +130,7 @@ export class Swarm {
       contextVariables = {},
       modelOverride,
       debug = false,
-      maxTurns = 10,
+      maxTurns = 6,
     } = options;
 
     /**

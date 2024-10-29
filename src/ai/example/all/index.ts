@@ -3,6 +3,7 @@ import { weatherAgent } from '../triage-weather-email/weatherAgent';
 import { emailAgent } from '../triage-weather-email/emailAgent';
 import { pokemonAgent } from '../pokemon/pokemonAgent';
 import { filesystemAgent } from '../filesystem/filesystemAgent';
+import { webScraperAgent } from '../webscraper/webScraperAgent';
 import { Agent, transferToAgent } from '../../agent';
 import { runSwarmLoop } from '../run';
 
@@ -12,6 +13,7 @@ const allAgents = [
   emailAgent,
   pokemonAgent,
   filesystemAgent,
+  webScraperAgent,
 ];
 
 // Util to be able to provide transferToAgent to all agents
