@@ -1,7 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createAgent } from '../agent';
-import { runSwarmLoop } from './run';
+import { createAgent } from '../../agent';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -10,7 +9,7 @@ const SCRATCHPAD_DIR = path.join(process.cwd(), 'src/ai/example/scratchpad');
 // Ensure scratchpad directory exists
 await fs.mkdir(SCRATCHPAD_DIR, { recursive: true });
 
-const filesystemAgent = createAgent({
+export const filesystemAgent = createAgent({
   id: 'Filesystem_Agent',
   system: `
     You are a filesystem management agent that can perform operations on files and folders within the scratchpad workspace.
@@ -241,11 +240,4 @@ const filesystemAgent = createAgent({
       },
     }),
   },
-});
-
-runSwarmLoop({
-  initialAgentMessage:
-    'Hello! I can help you manage files and folders in the scratchpad workspace. I can create, read, update, delete, rename, and move both files and folders. What would you like to do?',
-  initialAgent: filesystemAgent,
-  agents: [filesystemAgent],
 });

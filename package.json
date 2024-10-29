@@ -43,9 +43,10 @@
     "example:basic": "npx tsx examples/basic/main.ts",
     "example:weather": "npx tsx examples/weather/main.ts",
     "example:custom": "npx tsx examples/custom/main.ts",
-    "ai:triage-weather-email": "npx tsx src/ai/test.ts",
-    "ai:pokemon": "npx tsx src/ai/example/pokemon.ts",
-    "ai:filesystem": "npx tsx src/ai/example/filesystem.ts"
+    "ai:triage-weather-email": "npx tsx src/ai/example/triage-weather-email",
+    "ai:pokemon": "npx tsx src/ai/example/pokemon",
+    "ai:filesystem": "npx tsx src/ai/example/filesystem",
+    "ai:all": "npx tsx src/ai/example/all"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.70",

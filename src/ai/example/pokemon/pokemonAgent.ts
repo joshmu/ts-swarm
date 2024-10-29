@@ -1,9 +1,8 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { createAgent } from '../agent';
-import { runSwarmLoop } from './run';
+import { createAgent } from '../../agent';
 
-const pokemonAgent = createAgent({
+export const pokemonAgent = createAgent({
   id: 'Pokemon_Agent',
   system: `
     You are a Pokémon agent. You need to provide details about a Pokémon.
@@ -59,10 +58,4 @@ const pokemonAgent = createAgent({
       },
     }),
   },
-});
-
-runSwarmLoop({
-  initialAgentMessage: 'What Pokémon would you like to know about?',
-  initialAgent: pokemonAgent,
-  agents: [pokemonAgent],
 });
