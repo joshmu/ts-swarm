@@ -82,16 +82,9 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
           .literal(agent.id)
           .describe(`The id of the ${agent.id} agent.`),
       }),
-    }),
-    [`transferTo${agent.id}Answer`]: tool({
-      // answer tool: the LLM will provide a structured answer which can be leveraged
-      description: `A tool for providing the final answer of which agent id to transfer to.`,
-      parameters: z.object({
-        agentId: z
-          .literal(agent.id)
-          .describe(`The id of the ${agent.id} agent.`),
-      }),
-      // no execute function - invoking it will terminate the agent
+      execute: async ({ agentId }) => {
+        return `Transferring to agent: ${agentId}.`;
+      },
     }),
   };
 }
