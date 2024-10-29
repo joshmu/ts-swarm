@@ -8,9 +8,15 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const colors = {
+  reset: '\x1b[0m',
+  blue: '\x1b[34m', // for agents
+  green: '\x1b[32m', // for user
+} as const;
+
 async function promptUser(): Promise<string> {
   return new Promise((resolve) => {
-    rl.question('User: ', (input) => {
+    rl.question(`${colors.green}👤 User:${colors.reset} `, (input) => {
       resolve(input);
     });
   });
@@ -25,7 +31,9 @@ export async function runSwarmLoop({
   initialAgent: Agent;
   agents: Agent[];
 }) {
-  console.log(`${initialAgent.id}: ${initialAgentMessage}`);
+  console.log(
+    `${colors.blue}🤖 ${initialAgent.id}:${colors.reset} ${initialAgentMessage}`,
+  );
 
   const swarm = new Swarm({
     agents,
@@ -55,6 +63,8 @@ export async function runSwarmLoop({
     activeAgent = result.agent;
     messages = result.messages;
 
-    console.log(`${result.agent.id}: ${result.messages.at(-1)?.content}`);
+    console.log(
+      `${colors.blue}🤖 ${result.agent.id}:${colors.reset} ${result.messages.at(-1)?.content}`,
+    );
   }
 }
