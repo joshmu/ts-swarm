@@ -1,8 +1,7 @@
 import 'dotenv/config';
 import { openai } from '@ai-sdk/openai';
-import { CoreMessage, CoreTool, generateText, tool } from 'ai';
+import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
-import { Swarm } from './swarm';
 
 export type Agent = {
   /**
@@ -33,7 +32,6 @@ export type Agent = {
 export function createAgent({
   id,
   model = openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
-  maxSteps = 1,
   tools,
   ...createConfig
 }: Partial<Parameters<typeof generateText>[0]> & {
@@ -59,10 +57,14 @@ export function createAgent({
   async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
-      maxSteps,
       tools: agent.tools,
       ...createConfig,
       ...initConfig,
+      /**
+       * ! set the limit to 1 to allow the swarm to determine the orchestration
+       * If we don't do this then internal orchestration will be triggered at the agent level which currently has undesired behavior
+       */
+      maxSteps: 1,
     });
   }
 

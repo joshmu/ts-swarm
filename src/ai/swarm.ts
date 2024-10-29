@@ -39,10 +39,9 @@ export class Swarm {
 
     if (toolResults.length) {
       partialResponse.messages.push(...response.messages);
-      this.log(
-        activeAgent,
-        `Tool Result: ${toolResults.map((t) => (t as any)?.result ?? '').join(', ')}`,
-      );
+      toolResults.forEach((t) => {
+        console.log(`${activeAgent.id} (TOOL): ${(t as any)?.result}`);
+      });
     }
 
     return partialResponse;
