@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { filesystemAgent } from './filesystemAgent';
 import { runSwarmLoop } from '../run';
 

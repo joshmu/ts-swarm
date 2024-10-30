@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { webScraperAgent } from './webScraperAgent';
 import { runSwarmLoop } from '../run';
 

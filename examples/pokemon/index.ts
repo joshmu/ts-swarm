@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { pokemonAgent } from './pokemonAgent';
 import { runSwarmLoop } from '../run';
 
