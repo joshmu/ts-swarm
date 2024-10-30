@@ -5,7 +5,7 @@ import { createAgent } from '../../src/index';
 
 export const pokemonAgent = createAgent({
   id: 'Pokemon_Agent',
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   system: `
     You are a Pokémon agent. You need to provide details about a Pokémon.
     You can use the Pokémon tools to answer the question.

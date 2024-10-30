@@ -5,7 +5,7 @@ import { createAgent } from '../../src/index';
 
 export const emailAgent = createAgent({
   id: 'Email_Agent',
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   system: `
     You are an email agent. You need to send an email.
     Once you have enough information you should request for the user to confirm the email details.

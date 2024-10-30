@@ -12,7 +12,7 @@ await fs.mkdir(SCRATCHPAD_DIR, { recursive: true });
 
 export const filesystemAgent = createAgent({
   id: 'Filesystem_Agent',
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   system: `
     You are a filesystem management agent that can perform operations on files and folders within the scratchpad workspace.
     

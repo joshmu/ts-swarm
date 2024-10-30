@@ -11,11 +11,11 @@ import { z } from 'zod';
 // Create the Weather Agent
 const weatherAgent = createAgent({
   id: 'Weather_Agent',
-  model: openai('gpt-4o-mini'),
-  system: `You are a weather assistant. Your role is to:
-- Provide weather information for requested locations
-- Use the weather tool to fetch weather data
-- Respond in a friendly, conversational manner`,
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
+  system: `You are a weather assistant. 
+  Your role is to:
+    - Provide weather information for requested locations
+    - Use the weather tool to fetch weather data`,
   tools: {
     weather: tool({
       description: 'Get the weather for a specific location',
@@ -33,11 +33,10 @@ const weatherAgent = createAgent({
 // Create the Triage Agent
 const triageAgent = createAgent({
   id: 'Triage_Agent',
-  model: openai('gpt-4o-mini'),
-  system: `You are a helpful triage agent. Your role is to:
-- Determine if the user's request is weather-related
-- If weather-related, use transferToWeather_Agent to hand off the conversation
-- For non-weather queries, explain that you can only help with weather information`,
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
+  system: `You are a helpful triage agent. 
+  Your role is to:
+    - Answer the user's questions by transferring to the appropriate agent`,
   tools: {
     // Add ability to transfer to weather agent
     ...transferToAgent(weatherAgent),

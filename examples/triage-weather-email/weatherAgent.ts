@@ -32,7 +32,7 @@ async function fetchWeather(location: string) {
 
 export const weatherAgent = createAgent({
   id: 'Weather_Agent',
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
   system: `
     You are a weather agent that provides accurate weather information using real-time data.
     You should interpret the weather symbols and data provided by the weather tool and present it in a clear, 

@@ -10,7 +10,7 @@
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
 > [!NOTE]
-> This library is under active development, likely to change, and is not yet recommended for production use. We welcome all feedback and if interested in contributing then refer to the [#Roadmap](#roadmap) and [Contributing guidelines](./CONTRIBUTING.md)!
+> This library is currently under active development and likely to continue to change. All feedback and contributions are welcome! If interested then you can refer to the [Roadmap](#roadmap) and [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Features
 
@@ -23,17 +23,18 @@ TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenA
 
 ## Examples
 
-Some examples of agents and agentic patterns:
+Some examples of agents and agentic patterns, additionally take a look at [`examples/run.ts`](./examples/run.ts) on how you could dynamically run the agents.
 
-- [Filesystem Agent](./examples/filesystem/filesystemAgent.ts)
 - [Pokemon Agent](./examples/pokemon/pokemonAgent.ts)
-- [Triage Weather Email Agents](./examples/triage-weather-email/index.ts)
 - [Web Scraper Agent](./examples/webscraper/webScraperAgent.ts)
+- [Filesystem Agent](./examples/filesystem/filesystemAgent.ts)
+- [Triage Weather Email Agents](./examples/triage-weather-email/index.ts)
 - [All Agents Connected](./examples/all/index.ts)
 
 > [!TIP]
-> Invoke the examples via scripts provided in the package.json :)
+> Grab the repo and invoke the examples via scripts provided in the [package.json](./package.json) :)
 
+Example chat with the [All Agents Connected](./examples/all/index.ts) example:
 ![All Agents Chat Example](./assets/universal_agents_chat_example.jpg)
 
 ## Installation
@@ -44,7 +45,7 @@ You will need Node.js 18+ and pnpm installed on your local development machine.
 pnpm add ts-swarm ai zod
 ```
 
-Depending on the LLM you want to use via the Vercel AI SDK, you will need to install the appropriate package.
+Depending on the LLM you want to use via the Vercel AI SDK, you will need to install the appropriate package and ensure that the environment variable key is set.
 
 ```bash
 pnpm add @ai-sdk/openai
@@ -64,11 +65,11 @@ import { z } from 'zod';
 // Create the Weather Agent
 const weatherAgent = createAgent({
   id: 'Weather_Agent',
-  model: openai('gpt-4o-mini'),
-  system: `You are a weather assistant. Your role is to:
-- Provide weather information for requested locations
-- Use the weather tool to fetch weather data
-- Respond in a friendly, conversational manner`,
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
+  system: `You are a weather assistant. 
+  Your role is to:
+    - Provide weather information for requested locations
+    - Use the weather tool to fetch weather data`,
   tools: {
     weather: tool({
       description: 'Get the weather for a specific location',
@@ -86,22 +87,15 @@ const weatherAgent = createAgent({
 // Create the Triage Agent
 const triageAgent = createAgent({
   id: 'Triage_Agent',
-  model: openai('gpt-4o-mini'),
-  system: `You are a helpful triage agent. Your role is to:
-- Determine if the user's request is weather-related
-- If weather-related, use transferToWeather_Agent to hand off the conversation
-- For non-weather queries, explain that you can only help with weather information`,
+  model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
+  system: `You are a helpful triage agent. 
+  Your role is to:
+    - Answer the user's questions by transferring to the appropriate agent`,
   tools: {
     // Add ability to transfer to weather agent
     ...transferToAgent(weatherAgent),
   },
 });
-
-// Add ability for weather agent to transfer back to triage agent if needed
-weatherAgent.tools = {
-  ...weatherAgent.tools,
-  ...transferToAgent(triageAgent),
-};
 
 async function demo() {
   // Initialize swarm with our agents
@@ -146,8 +140,8 @@ The primary goal of Swarm is to showcase the handoff & routines patterns explore
 
 - [ ] Support streaming
 - [ ] Remove the requirement to pass an agent list to the Swarm constructor
-- [ ] Reduce the public api: Remove the requirement of the transferToAgent util
-- [ ] Reduce the public api: Do we need the Swarm constructor at all?
+- [ ] Simplify the public api: Remove the requirement of the transferToAgent util
+- [ ] Simplify the public api: Do we need to invoke the Swarm class?
 - [ ] Add more examples, because that's the best way to learn
 - [ ] Providing agentic design pattern examples and architecture flows
 - [ ] Add more tests
@@ -170,4 +164,4 @@ It goes without saying that this project would not have been possible without th
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) for details.
