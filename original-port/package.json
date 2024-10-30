@@ -1,0 +1,37 @@
+{
+  "name": "ts-swarm__original-port",
+  "version": "1.0.0",
+  "description": "A minimal TypeScript Agentic library (original port) inspired by the OpenAI Swarm API.",
+  "keywords": [
+    "swarm",
+    "ai",
+    "agentic",
+    "typescript",
+    "openai",
+    "agent",
+    "agentic-workflow"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "example:basic": "npx tsx examples/basic/main.ts",
+    "example:weather": "npx tsx examples/weather/main.ts",
+    "example:custom": "npx tsx examples/custom/main.ts"
+  },
+  "dependencies": {
+    "openai": "^4.57.0"
+  },
+  "homepage": "https://github.com/joshmu/ts-swarm",
+  "bugs": {
+    "url": "https://github.com/joshmu/ts-swarm/issues"
+  },
+  "author": "Josh Mu <hello@joshmu.dev> (https://joshmu.dev)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshmu/ts-swarm.git"
+  },
+  "license": "MIT"
+}

@@ -1,7 +1,7 @@
 {
   "name": "ts-swarm",
   "version": "1.0.5",
-  "description": "A minimal TypeScript Agentic library inspired by the OpenAI Swarm API.",
+  "description": "TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of the OpenAI Swarm API with the flexibility of the Vercel AI SDK.",
   "keywords": [
     "swarm",
     "ai",
@@ -40,19 +40,15 @@
     "release": "changeset version && changeset publish",
     "ci:release": "pnpm build && pnpm release",
     "prepublishOnly": "pnpm run ci",
-    "example:basic": "npx tsx examples/basic/main.ts",
-    "example:weather": "npx tsx examples/weather/main.ts",
-    "example:custom": "npx tsx examples/custom/main.ts",
-    "ai:triage-weather-email": "npx tsx src/ai/example/triage-weather-email",
-    "ai:pokemon": "npx tsx src/ai/example/pokemon",
-    "ai:filesystem": "npx tsx src/ai/example/filesystem",
-    "ai:all": "npx tsx src/ai/example/all",
-    "ai:webscraper": "npx tsx src/ai/example/webscraper"
+    "example:triage-weather-email": "npx tsx examples/triage-weather-email",
+    "example:pokemon": "npx tsx examples/pokemon",
+    "example:filesystem": "npx tsx examples/filesystem",
+    "example:webscraper": "npx tsx examples/webscraper",
+    "example:all": "npx tsx examples/all"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.70",
     "ai": "^3.4.20",
-    "openai": "^4.57.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

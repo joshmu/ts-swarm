@@ -13,7 +13,7 @@
     "lib": ["ES2020"],
     "noEmit": true
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "original-port"],
   "exclude": ["node_modules", "dist"],
 
   /* AND if you're building for a library: */
