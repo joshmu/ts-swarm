@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.3
+
+### Patch Changes
+
+- 43928a7: resolve deps
+
 ## 1.1.2
 
 ### Patch Changes
