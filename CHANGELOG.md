@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.6
+
+### Patch Changes
+
+- 4361914: update docs
+
 ## 1.1.5
 
 ### Patch Changes
