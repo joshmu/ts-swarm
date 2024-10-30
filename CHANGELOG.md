@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.7
+
+### Patch Changes
+
+- aa32395: doc update
+
 ## 1.1.6
 
 ### Patch Changes
