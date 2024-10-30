@@ -1,9 +1,11 @@
-import { createAgent } from '../../src/index';
 import { tool } from 'ai';
 import { z } from 'zod';
+import { openai } from '@ai-sdk/openai';
+import { createAgent } from '../../src/index';
 
 export const weatherAgent = createAgent({
   id: 'Weather_Agent',
+  model: openai('gpt-4o-mini'),
   system: `
     You are a weather agent. You need to provide the weather.
     You can only use the weather tool to answer the question.

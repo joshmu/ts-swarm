@@ -1,5 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { openai } from '@ai-sdk/openai';
 import { createAgent } from '../../src/index';
 import fs from 'fs/promises';
 import path from 'path';
@@ -11,6 +12,7 @@ await fs.mkdir(SCRATCHPAD_DIR, { recursive: true });
 
 export const filesystemAgent = createAgent({
   id: 'Filesystem_Agent',
+  model: openai('gpt-4o-mini'),
   system: `
     You are a filesystem management agent that can perform operations on files and folders within the scratchpad workspace.
     

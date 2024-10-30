@@ -1,6 +1,8 @@
-import { openai } from '@ai-sdk/openai';
 import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
+
+type GenerateText = typeof generateText;
+type GenerateTextParams = Parameters<GenerateText>[0];
 
 export type Agent = {
   /**
@@ -14,9 +16,7 @@ export type Agent = {
   /**
    * logic to initialize the agent
    */
-  init: (
-    options: Partial<Parameters<typeof generateText>[0]>,
-  ) => ReturnType<typeof generateText>;
+  init: (options: Partial<GenerateTextParams>) => ReturnType<GenerateText>;
   /**
    * tools available to the agent
    */
@@ -30,11 +30,12 @@ export type Agent = {
  */
 export function createAgent({
   id,
-  model = openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
+  model,
   tools,
   ...createConfig
-}: Partial<Parameters<typeof generateText>[0]> & {
+}: Partial<GenerateTextParams> & {
   id: string;
+  model: GenerateTextParams['model'];
   tools: CoreTool[] | Record<string, CoreTool>;
 }): Agent {
   /**
