@@ -4,12 +4,14 @@
 
 import 'dotenv/config';
 import { createAgent, Swarm, transferToAgent } from '../../src';
+import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { tool } from 'ai';
 import { z } from 'zod';
 
 // Create the Weather Agent
 const weatherAgent = createAgent({
   id: 'Weather_Agent',
+  model: openai('gpt-4o-mini'),
   system: `You are a weather assistant. Your role is to:
 - Provide weather information for requested locations
 - Use the weather tool to fetch weather data
@@ -31,6 +33,7 @@ const weatherAgent = createAgent({
 // Create the Triage Agent
 const triageAgent = createAgent({
   id: 'Triage_Agent',
+  model: openai('gpt-4o-mini'),
   system: `You are a helpful triage agent. Your role is to:
 - Determine if the user's request is weather-related
 - If weather-related, use transferToWeather_Agent to hand off the conversation
