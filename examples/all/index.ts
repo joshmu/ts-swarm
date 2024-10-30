@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { triageAgent } from '../triage-weather-email/triageAgent';
 import { weatherAgent } from '../triage-weather-email/weatherAgent';
 import { emailAgent } from '../triage-weather-email/emailAgent';

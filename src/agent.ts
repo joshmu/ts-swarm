@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { openai } from '@ai-sdk/openai';
 import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';

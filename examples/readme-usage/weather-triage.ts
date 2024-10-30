@@ -2,6 +2,7 @@
  * This is the usage example for the README.md file.
  */
 
+import 'dotenv/config';
 import { createAgent, Swarm, transferToAgent } from '../../src';
 import { tool } from 'ai';
 import { z } from 'zod';
