@@ -44,12 +44,6 @@ const triageAgent = createAgent({
   },
 });
 
-// Add ability for weather agent to transfer back to triage agent if needed
-weatherAgent.tools = {
-  ...weatherAgent.tools,
-  ...transferToAgent(triageAgent),
-};
-
 async function demo() {
   // Initialize swarm with our agents
   const swarm = new Swarm({

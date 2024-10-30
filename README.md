@@ -9,6 +9,9 @@
 
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
+> [!NOTE]
+> This library is under active development, likely to change, and is not yet recommended for production use. We welcome all feedback and if interested in contributing then refer to the [#Roadmap](#roadmap) and [Contributing guidelines](./CONTRIBUTING.md)!
+
 ## Features
 
 - **Multi-Agent System**: Create and manage multiple AI agents with different roles and capabilities.
@@ -20,12 +23,16 @@ TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenA
 
 ## Examples
 
+Some examples of agents and agentic patterns:
+
 - [Filesystem Agent](./examples/filesystem/filesystemAgent.ts)
 - [Pokemon Agent](./examples/pokemon/pokemonAgent.ts)
 - [Triage Weather Email Agents](./examples/triage-weather-email/index.ts)
-- [All Agents](./examples/all/index.ts)
+- [Web Scraper Agent](./examples/webscraper/webScraperAgent.ts)
+- [All Agents Connected](./examples/all/index.ts)
 
-Run scripts of the examples can be found in the package.json :)
+> [!TIP]
+> Invoke the examples via scripts provided in the package.json :)
 
 ![All Agents Chat Example](./assets/universal_agents_chat_example.jpg)
 
@@ -134,6 +141,16 @@ To see more examples, check out the [examples](./examples) directory.
 Otherwise, for more examples please refer to the original openai repo: [swarm](https://github.com/openai/swarm)
 
 The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
+
+## Roadmap
+
+- [ ] Support streaming
+- [ ] Remove the requirement to pass an agent list to the Swarm constructor
+- [ ] Reduce the public api: Remove the requirement of the transferToAgent util
+- [ ] Reduce the public api: Do we need the Swarm constructor at all?
+- [ ] Add more examples, because that's the best way to learn
+- [ ] Providing agentic design pattern examples and architecture flows
+- [ ] Add more tests
 
 ## Contributing
 
