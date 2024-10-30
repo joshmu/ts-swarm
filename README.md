@@ -14,6 +14,9 @@ TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenA
 - **Multi-Agent System**: Create and manage multiple AI agents with different roles and capabilities.
 - **Flexible Agent Configuration**: Easily define agent behaviors, instructions, and available functions.
 - **Task Delegation**: Agents can transfer tasks to other specialized agents.
+- **Tools**: Agents can use tools to perform tasks.
+- **Zod Validation**: Tools can use zod validation to ensure the input is correct.
+- **Model Choice**: Easily switch between different LLMs by changing a single line of code.
 
 ## Examples
 
@@ -35,6 +38,9 @@ pnpm add ts-swarm
 ```
 
 ## Usage
+
+> [!TIP]
+> The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). You have access to the full power of the Vercel AI SDK at your disposal including **tools**, **zod validation**, and **model choice**. ⚡
 
 ```typescript
 import { createAgent, Swarm, transferToAgent } from 'ts-swarm';
