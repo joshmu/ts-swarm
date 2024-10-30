@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- a1e56ad: docs: expose model in readme usage
+- 298cbc9: resolve lock file
+- 4acf529: readme doc update
+- 19577a7: build update to support correct deps
+
 ## 1.1.1
 
 ### Patch Changes
