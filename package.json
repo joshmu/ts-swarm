@@ -48,23 +48,11 @@
     "example:all": "npx tsx examples/all"
   },
   "dependencies": {
-    "zod": "^3.23.8"
-  },
-  "peerDependencies": {
-    "@ai-sdk/openai": "^0.0.70",
-    "ai": "^3.4.20"
-  },
-  "peerDependenciesMeta": {
-    "@ai-sdk/openai": {
-      "optional": true
-    },
-    "ai": {
-      "optional": false
-    }
-  },
-  "devDependencies": {
     "@ai-sdk/openai": "^0.0.70",
     "ai": "^3.4.20",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
     "@arethetypeswrong/cli": "^0.16.4",
     "@changesets/cli": "^2.27.9",
     "@types/node": "^22.7.9",
