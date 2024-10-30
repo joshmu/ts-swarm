@@ -40,6 +40,7 @@
     "release": "changeset version && changeset publish",
     "ci:release": "pnpm build && pnpm release",
     "prepublishOnly": "pnpm run ci",
+    "example:readme-usage": "npx tsx examples/readme-usage/weather-triage.ts",
     "example:triage-weather-email": "npx tsx examples/triage-weather-email",
     "example:pokemon": "npx tsx examples/pokemon",
     "example:filesystem": "npx tsx examples/filesystem",
