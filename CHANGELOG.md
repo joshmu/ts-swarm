@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.5
+
+### Patch Changes
+
+- 1b5ec5c: improve weather example
+
 ## 1.1.4
 
 ### Patch Changes
