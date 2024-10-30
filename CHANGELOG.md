@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 9b20f03: update docs to mention the benefits of the vercel ai sdk using generateText
+
 ## 1.1.0
 
 ### Minor Changes
