@@ -1,5 +1,5 @@
 import { Agent } from './agent';
-import { CoreMessage, generateText } from 'ai';
+import { CoreMessage, CoreToolResult, generateText } from 'ai';
 
 const colors = {
   reset: '\x1b[0m',
@@ -13,9 +13,17 @@ const colors = {
  */
 export class Swarm {
   private readonly agents: Agent[];
+  private readonly showToolLogs: boolean;
 
-  constructor({ agents }: { agents: Agent[] }) {
+  constructor({
+    agents,
+    showToolLogs = false,
+  }: {
+    agents: Agent[];
+    showToolLogs?: boolean;
+  }) {
     this.agents = agents;
+    this.showToolLogs = showToolLogs;
   }
 
   /**
@@ -45,8 +53,11 @@ export class Swarm {
 
     if (toolResults.length) {
       partialResponse.messages.push(...response.messages);
-      toolResults.forEach((t) => {
-        console.log(`${activeAgent.id} (TOOL): ${(t as any)?.result}`);
+      toolResults.forEach((t: CoreToolResult<string, any, any>) => {
+        if (this.showToolLogs)
+          console.log(
+            `${activeAgent.id} (TOOL - ${t.toolName}): ${t.result}`,
+          );
       });
     }
 

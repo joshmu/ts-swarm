@@ -26,10 +26,12 @@ export async function runSwarmLoop({
   initialAgentMessage = 'Hey, how can I help you today?',
   initialAgent,
   agents,
+  showToolLogs = false,
 }: {
   initialAgentMessage?: string;
   initialAgent: Agent;
   agents: Agent[];
+  showToolLogs?: boolean;
 }) {
   console.log(
     `${colors.blue}🤖 ${initialAgent.id}:${colors.reset} ${initialAgentMessage}`,
@@ -37,6 +39,7 @@ export async function runSwarmLoop({
 
   const swarm = new Swarm({
     agents,
+    showToolLogs,
   });
 
   let messages: CoreMessage[] = [];

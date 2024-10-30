@@ -10,9 +10,7 @@ async function fetchWithTimeout(url: string, timeout = 5000) {
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    // @see https://jina.ai
-    const jinaReaderUrl = `https://r.jina.ai/${url}`;
-    const response = await fetch(jinaReaderUrl, {
+    const response = await fetch(url, {
       signal: controller.signal,
       headers: {
         Accept: 'text/plain',
@@ -34,9 +32,10 @@ export const webScraperAgent = createAgent({
     2. Fetch and extract text content from web pages
     3. Analyze and summarize the content
     4. Answer questions about the scraped content
-    
-    When processing URLs:
-    - Verify if the input looks like a valid URL
+    5. Perform web searches and analyze results
+
+    When processing URLs or searches:
+    - Verify if the input looks valid
     - Handle errors gracefully and provide clear feedback
     - Summarize content in a clear, structured way
     - Be mindful of content length in responses
@@ -46,6 +45,7 @@ export const webScraperAgent = createAgent({
     - Fetch web content
     - Get current scraped content
     - Clear the current content
+    - Perform web searches
   `,
   tools: {
     readClipboard: tool({
@@ -68,7 +68,10 @@ export const webScraperAgent = createAgent({
       }),
       execute: async ({ url }) => {
         try {
-          const response = await fetchWithTimeout(url);
+          const encodedUrl = encodeURIComponent(url);
+          // @see https://jina.ai
+          const jinaReaderUrl = `https://r.jina.ai/${encodedUrl}`;
+          const response = await fetchWithTimeout(jinaReaderUrl, 10000);
           if (!response.ok) {
             return `Failed to fetch URL: ${response.statusText}`;
           }
@@ -102,6 +105,35 @@ export const webScraperAgent = createAgent({
       execute: async () => {
         lastScrapedContent = undefined;
         return 'Scraped content has been cleared';
+      },
+    }),
+
+    performWebSearch: tool({
+      description: 'Performs a web search and return the results',
+      parameters: z.object({
+        query: z.string().describe('The search query to look up'),
+      }),
+      execute: async ({ query }) => {
+        try {
+          // @see https://jina.ai
+          const encodedQuery = encodeURIComponent(query);
+          const jinaSearchUrl = `https://s.jina.ai/${encodedQuery}`;
+          console.log('execute: > jinaSearchUrl:', jinaSearchUrl);
+
+          const response = await fetchWithTimeout(jinaSearchUrl, 20000);
+          if (!response.ok) {
+            return `Failed to perform search: ${response.statusText}`;
+          }
+
+          const searchResults = await response.text();
+
+          // Store in context for later use
+          lastScrapedContent = searchResults;
+
+          return `Successfully performed search. Preview of results:\n${searchResults.slice(0, 150)}...`;
+        } catch (error: any) {
+          return `Error performing search: ${error.message}`;
+        }
       },
     }),
   },
