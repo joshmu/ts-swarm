@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 2ecd71b: Updated the entire codebase to lean in to the vercel ai sdk and archived the port version, additionally added a variety of working examples
+
 ## 1.0.5
 
 ### Patch Changes
