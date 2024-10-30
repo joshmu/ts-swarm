@@ -116,7 +116,7 @@ demo();
 // Result: The weather in New York is sunny with a high of 67°F.
 ```
 
-The diagram below demonstrates the usage above. A simple multi-agent system that allows for delegation of tasks to specialized agents.
+The following diagram demonstrates the usage above. A simple multi-agent system that allows for delegation of tasks to specialized agents.
 
 ![Swarm Diagram](./assets/swarm_diagram.png)
 
