@@ -1,4 +1,4 @@
-import { AgentFunction } from '../../../../../agent';
+import { type AgentFunction } from '../../../../../src/index';
 
 export const getWeather: AgentFunction = {
   name: 'getWeather',

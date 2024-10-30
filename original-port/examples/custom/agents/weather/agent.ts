@@ -1,4 +1,4 @@
-import { Agent } from '../../../../agent';
+import { Agent } from '../../../../src/index';
 import { getWeather } from './tools/getWeather';
 
 export const weatherAgent = new Agent({

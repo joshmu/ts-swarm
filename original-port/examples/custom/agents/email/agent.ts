@@ -1,4 +1,4 @@
-import { Agent } from '../../../../agent';
+import { Agent } from '../../../../src/index';
 import { sendEmail } from './tools/sendEmail';
 
 export const emailAgent = new Agent({

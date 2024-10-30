@@ -1,4 +1,4 @@
-import { createAgentFunction } from '../../../../../index';
+import { createAgentFunction } from '../../../../../src/index';
 
 export const sendEmail = createAgentFunction({
   name: 'sendEmail',

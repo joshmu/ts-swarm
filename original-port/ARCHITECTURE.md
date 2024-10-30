@@ -2,7 +2,7 @@
 
 Swarm focuses on making agent coordination and execution lightweight, highly controllable, and easily testable.
 
-![Swarm Diagram](assets/swarm_diagram.png)
+![Swarm Diagram](../assets/swarm_diagram.png)
 
 ## Core Components
 

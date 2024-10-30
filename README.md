@@ -7,20 +7,24 @@
 
 ## Overview
 
-TS-SWARM is a minimal TypeScript Agentic library inspired by the [OpenAI Swarm API](https://github.com/openai/swarm). It provides a flexible and extensible system for creating and managing AI agents that can collaborate, communicate, and solve complex tasks.
-
-> [!TIP]
-> Initially ported to Typescript from the [original Python codebase](https://github.com/openai/swarm), TS-SWARM diverges with a more functional typesafe approach and sprinkles in some additional features such as Event Emitter. Future plans are to add zod validation and a more generic adapter for the chat completions so that other LLMs can be leveraged. ⚡
+TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
 ## Features
 
 - **Multi-Agent System**: Create and manage multiple AI agents with different roles and capabilities.
 - **Flexible Agent Configuration**: Easily define agent behaviors, instructions, and available functions.
 - **Task Delegation**: Agents can transfer tasks to other specialized agents.
-- **Streaming Responses**: Support for real-time streaming of agent responses.
-- **Context Management**: Maintain and update context variables across agent interactions.
-- **Event System**: Built-in event emitter for tracking agent switches and tool calls.
-- **TypeScript Support**: Fully typed for better development experience and code quality.
+
+## Examples
+
+- [Filesystem Agent](./examples/filesystem/filesystemAgent.ts)
+- [Pokemon Agent](./examples/pokemon/pokemonAgent.ts)
+- [Triage Weather Email Agents](./examples/triage-weather-email/index.ts)
+- [All Agents](./examples/all/index.ts)
+
+Run scripts of the examples can be found in the package.json :)
+
+![All Agents Chat Example](./assets/universal_agents_chat_example.jpg)
 
 ## Installation
 
@@ -33,76 +37,88 @@ pnpm add ts-swarm
 ## Usage
 
 ```typescript
-import { Swarm, Agent, createAgentFunction } from 'ts-swarm';
+import { createAgent, Swarm, transferToAgent } from 'ts-swarm';
+import { tool } from 'ai';
+import { z } from 'zod';
 
-const getWeather = createAgentFunction({
-  name: 'getWeather',
-  func: ({ location }: { location: string }): string => {
-    // mock API call...
-    return `The weather in ${location} is sunny with a high of 67°F.`;
-  },
-  descriptor: {
-    name: 'getWeather',
-    description: 'Get the weather for a specific location',
-    parameters: {
-      location: {
-        type: 'string',
-        required: true,
-        description: 'The location to get weather for',
+// Create the Weather Agent
+const weatherAgent = createAgent({
+  id: 'Weather_Agent',
+  system: `You are a weather assistant. Your role is to:
+- Provide weather information for requested locations
+- Use the weather tool to fetch weather data
+- Respond in a friendly, conversational manner`,
+  tools: {
+    weather: tool({
+      description: 'Get the weather for a specific location',
+      parameters: z.object({
+        location: z.string().describe('The location to get weather for'),
+      }),
+      execute: async ({ location }) => {
+        // Mock weather API call
+        return `The weather in ${location} is sunny with a high of 67°F.`;
       },
-    },
+    }),
   },
 });
 
-const weatherAgent = new Agent({
-  name: 'Weather Agent',
-  instructions: 'You are a weather assistant.',
-  functions: [getWeather],
-});
-
-const transferToWeatherAgent = createAgentFunction({
-  name: 'transferToWeatherAgent',
-  func: () => weatherAgent,
-  descriptor: {
-    name: 'transferToWeatherAgent',
-    description: 'Transfer the conversation to the Weather Agent',
-    parameters: {},
+// Create the Triage Agent
+const triageAgent = createAgent({
+  id: 'Triage_Agent',
+  system: `You are a helpful triage agent. Your role is to:
+- Determine if the user's request is weather-related
+- If weather-related, use transferToWeather_Agent to hand off the conversation
+- For non-weather queries, explain that you can only help with weather information`,
+  tools: {
+    // Add ability to transfer to weather agent
+    ...transferToAgent(weatherAgent),
   },
 });
 
-const triageAgent = new Agent({
-  name: 'Triage Agent',
-  instructions:
-    "You are a helpful triage agent. Determine which agent is best suited to handle the user's request, and transfer the conversation to that agent.",
-  functions: [transferToWeatherAgent],
-  tool_choice: 'auto',
-  parallel_tool_calls: false,
-});
+// Add ability for weather agent to transfer back to triage agent if needed
+weatherAgent.tools = {
+  ...weatherAgent.tools,
+  ...transferToAgent(triageAgent),
+};
 
-const swarm = new Swarm({ apiKey: process.env.OPENAI_API_KEY });
+async function demo() {
+  // Initialize swarm with our agents
+  const swarm = new Swarm({
+    agents: [triageAgent, weatherAgent],
+  });
 
-// Run the swarm
-const result = await swarm.run({
-  agent: triageAgent,
-  messages: [{ role: 'user', content: "What's the weather like in New York?" }],
-});
+  // Example conversation
+  const messages = [
+    { role: 'user' as const, content: "What's the weather like in New York?" },
+  ];
 
-const lastMessage = result.messages.at(-1);
-console.log(lastMessage.content);
-// result: The weather in New York is sunny with a high of 67°F.
+  // Run the swarm
+  const result = await swarm.run({
+    agent: triageAgent,
+    messages,
+  });
+
+  // Log the last message (or the entire conversation if you prefer)
+  const lastMessage = result.messages[result.messages.length - 1];
+  console.log(
+    `${lastMessage.swarmMeta?.agentId || 'User'}: ${lastMessage.content}`,
+  );
+}
+
+demo();
+// Query: What's the weather like in New York?
+// Result: The weather in New York is sunny with a high of 67°F.
 ```
 
 The diagram below demonstrates the usage above. A simple multi-agent system that allows for delegation of tasks to specialized agents.
 
-![Swarm Diagram](assets/swarm_diagram.png)
+![Swarm Diagram](./assets/swarm_diagram.png)
 
-To see more examples, check out the [examples](./src/examples) directory.
+To see more examples, check out the [examples](./examples) directory.
 
 Otherwise, for more examples please refer to the original openai repo: [swarm](https://github.com/openai/swarm)
 
 The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
-
-For more information on the architecture, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Contributing
 
@@ -118,7 +134,7 @@ If you're still experiencing issues, please [open an issue](https://github.com/j
 
 ## Acknowledgements
 
-It goes without saying that this project would not have been possible without the original work done by the OpenAI team. :) Go give the [Swarm API](https://github.com/openai/swarm) a star! ⭐
+It goes without saying that this project would not have been possible without the original work done by the OpenAI & Vercel teams. :) Go give the [Swarm API](https://github.com/openai/swarm) & [Vercel AI SDK](https://github.com/vercel/ai) a star! ⭐
 
 ## License
 
