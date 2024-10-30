@@ -51,11 +51,7 @@ If you encounter any prettier issues, you can fix them by running `pnpm format`.
 
 1. run `pnpm install` in the root
 2. copy `.env.example` to `.env` and add your OpenAI API key
-3. run examples:
-   1. `pnpm example:basic`
-   2. `pnpm example:weather` - as per the README usage example
-   3. `pnpm example:custom`
-
-For more information on the architecture, see our [ARCHITECTURE.md](./ARCHITECTURE.md).
+3. review the package.json for examples and run them:
+   1. `pnpm example:<example-name>`
 
 Thank you for contributing to TS-SWARM! Your efforts make a significant difference.
