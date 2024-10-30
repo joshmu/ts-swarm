@@ -2,29 +2,22 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { createAgent } from '../../agent';
 import clipboard from 'clipboardy';
-import { JSDOM } from 'jsdom';
 
 let lastScrapedContent: string | undefined;
-
-function extractTextContent(html: string): string {
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
-
-  // Remove script and style elements
-  const scripts = document.getElementsByTagName('script');
-  const styles = document.getElementsByTagName('style');
-  [...scripts, ...styles].forEach((el) => el.remove());
-
-  // Get text content
-  return document.body.textContent?.trim() || '';
-}
 
 async function fetchWithTimeout(url: string, timeout = 5000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch(url, { signal: controller.signal });
+    // @see https://jina.ai
+    const jinaReaderUrl = `https://r.jina.ai/${url}`;
+    const response = await fetch(jinaReaderUrl, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'text/plain',
+      },
+    });
     clearTimeout(timeoutId);
     return response;
   } catch (error) {
@@ -71,7 +64,7 @@ export const webScraperAgent = createAgent({
     fetchWebContent: tool({
       description: 'Fetches and extracts text content from a URL',
       parameters: z.object({
-        url: z.string(),
+        url: z.string().describe('The URL to fetch content from'),
       }),
       execute: async ({ url }) => {
         try {
@@ -80,8 +73,7 @@ export const webScraperAgent = createAgent({
             return `Failed to fetch URL: ${response.statusText}`;
           }
 
-          const html = await response.text();
-          const textContent = extractTextContent(html);
+          const textContent = await response.text();
 
           // Store in context for later use
           lastScrapedContent = textContent;
