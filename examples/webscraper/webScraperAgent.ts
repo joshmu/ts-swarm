@@ -2,6 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { createAgent } from '../../src/index';
 import clipboard from 'clipboardy';
+import { openai } from '@ai-sdk/openai';
 
 let lastScrapedContent: string | undefined;
 
@@ -26,6 +27,7 @@ async function fetchWithTimeout(url: string, timeout = 5000) {
 
 export const webScraperAgent = createAgent({
   id: 'WebScraper_Agent',
+  model: openai('gpt-4o-mini'),
   system: `
     You are a web scraping agent that can:
     1. Read URLs from the clipboard

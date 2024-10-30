@@ -1,9 +1,11 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { openai } from '@ai-sdk/openai';
 import { createAgent } from '../../src/index';
 
 export const pokemonAgent = createAgent({
   id: 'Pokemon_Agent',
+  model: openai('gpt-4o-mini'),
   system: `
     You are a Pokémon agent. You need to provide details about a Pokémon.
     You can use the Pokémon tools to answer the question.
@@ -34,7 +36,7 @@ export const pokemonAgent = createAgent({
       }),
       execute: async ({ name }) => {
         const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${name}`,
+          `https://pokeapi.co/api/v2/pokemon/${name?.toLowerCase()}`,
         );
         if (!response.ok) {
           return `Could not find abilities for Pokémon: ${name}.`;
@@ -53,7 +55,7 @@ export const pokemonAgent = createAgent({
       }),
       execute: async ({ name }) => {
         const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${name}`,
+          `https://pokeapi.co/api/v2/pokemon/${name?.toLowerCase()}`,
         );
         if (!response.ok) {
           return `Could not find types for Pokémon: ${name}.`;

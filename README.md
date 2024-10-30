@@ -34,7 +34,13 @@ Run scripts of the examples can be found in the package.json :)
 You will need Node.js 18+ and pnpm installed on your local development machine.
 
 ```bash
-pnpm add ts-swarm
+pnpm add ts-swarm ai zod
+```
+
+Depending on the LLM you want to use via the Vercel AI SDK, you will need to install the appropriate package.
+
+```bash
+pnpm add @ai-sdk/openai
 ```
 
 ## Usage
