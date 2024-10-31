@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.9
+
+### Patch Changes
+
+- 2eaf8a8: simplify the api footprint
+- c624e5e: update lock
+
 ## 1.1.8
 
 ### Patch Changes
