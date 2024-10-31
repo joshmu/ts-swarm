@@ -34,8 +34,8 @@ Some examples of agents and agentic patterns, additionally take a look at [`exam
 > [!TIP]
 > Grab the repo and invoke the examples via scripts provided in the [package.json](./package.json) :)
 
-Example chat with the [All Agents Connected](./examples/all/index.ts) example:
-![All Agents Chat Example](./assets/universal_agents_chat_example.jpg)
+Demo using the [All Agents Connected](./examples/all/index.ts) example:
+![All Agents Chat Example](./assets/all_agents_chat_example.jpg)
 
 ## Installation
 
@@ -54,12 +54,11 @@ pnpm add @ai-sdk/openai
 ## Usage
 
 > [!TIP]
-> The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). You have access to the full power of the Vercel AI SDK at your disposal including **tools**, **zod validation**, and **model choice**. ⚡
+> The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). Thus you have access to **tools**, **zod validation**, and **model choice**. ⚡
 
 ```typescript
-import { createAgent, Swarm } from 'ts-swarm';
+import { createAgent, runSwarm } from 'ts-swarm';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
-import { tool } from 'ai';
 import { z } from 'zod';
 
 // Create the Weather Agent
@@ -73,16 +72,14 @@ const weatherAgent = createAgent({
   tools: [
     {
       id: 'weather',
-      ...tool({
-        description: 'Get the weather for a specific location',
-        parameters: z.object({
-          location: z.string().describe('The location to get weather for'),
-        }),
-        execute: async ({ location }) => {
-          // Mock weather API call
-          return `The weather in ${location} is sunny with a high of 67°F.`;
-        },
+      description: 'Get the weather for a specific location',
+      parameters: z.object({
+        location: z.string().describe('The location to get weather for'),
       }),
+      execute: async ({ location }) => {
+        // Mock weather API call
+        return `The weather in ${location} is sunny with a high of 67°F.`;
+      },
     },
   ],
 });
@@ -101,18 +98,13 @@ const triageAgent = createAgent({
 });
 
 async function demo() {
-  // Initialize swarm with our agents
-  const swarm = new Swarm({
-    agents: [triageAgent, weatherAgent],
-  });
-
   // Example conversation
   const messages = [
     { role: 'user' as const, content: "What's the weather like in New York?" },
   ];
 
   // Run the swarm
-  const result = await swarm.run({
+  const result = await runSwarm({
     agent: triageAgent,
     messages,
   });

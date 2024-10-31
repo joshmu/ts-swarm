@@ -5,7 +5,6 @@
 import 'dotenv/config';
 import { createAgent, runSwarm } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
-import { tool } from 'ai';
 import { z } from 'zod';
 
 // Create the Weather Agent
@@ -19,16 +18,14 @@ const weatherAgent = createAgent({
   tools: [
     {
       id: 'weather',
-      ...tool({
-        description: 'Get the weather for a specific location',
-        parameters: z.object({
-          location: z.string().describe('The location to get weather for'),
-        }),
-        execute: async ({ location }) => {
-          // Mock weather API call
-          return `The weather in ${location} is sunny with a high of 67°F.`;
-        },
+      description: 'Get the weather for a specific location',
+      parameters: z.object({
+        location: z.string().describe('The location to get weather for'),
       }),
+      execute: async ({ location }) => {
+        // Mock weather API call
+        return `The weather in ${location} is sunny with a high of 67°F.`;
+      },
     },
   ],
 });

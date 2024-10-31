@@ -56,12 +56,7 @@ export function createAgent({
   async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
-      tools: agent.tools.reduce((acc, tool) => {
-        return {
-          ...acc,
-          ...normalizeSwarmTool(tool),
-        };
-      }, {}),
+      tools: createToolMap(agent.tools),
       ...createConfig,
       ...initConfig,
       /**
@@ -73,6 +68,18 @@ export function createAgent({
   }
 
   return agent;
+}
+
+/**
+ * Create a tool map valid for the ai sdk
+ */
+function createToolMap(tools: SwarmTool[]) {
+  return tools.reduce((acc, tool) => {
+    return {
+      ...acc,
+      ...normalizeSwarmTool(tool),
+    };
+  }, {});
 }
 
 /**
@@ -94,10 +101,7 @@ function transferToAgent(agent: Agent): Record<string, CoreTool> {
         A tool to transfer responsibility to the ${agent.id} agent.
       `,
       parameters: z.object({}),
-      execute: async () => {
-        console.log(`Transferring to agent: ${agent.id}.`);
-        return agent;
-      },
+      execute: async () => agent,
     }),
   };
 }
@@ -105,12 +109,13 @@ function transferToAgent(agent: Agent): Record<string, CoreTool> {
 /**
  * Util to create the transfer to Agent tool via a TransferToAgentTool arg
  */
-function normalizeSwarmTool(
-  tool: TransferToAgentTool | CustomCoreTool,
-): Record<string, CoreTool> {
-  if (!isTransferToAgentTool(tool)) {
-    const { id, ...rest } = tool;
-    return { [id]: { ...rest } } as Record<string, CoreTool>;
+function normalizeSwarmTool(swarmTool: SwarmTool): Record<string, CoreTool> {
+  if (!isTransferToAgentTool(swarmTool)) {
+    const { id, ...toolConfig } = swarmTool;
+    return { [id]: tool(toolConfig as Parameters<typeof tool>[0]) } as Record<
+      string,
+      CoreTool
+    >;
   }
-  return transferToAgent(tool());
+  return transferToAgent(swarmTool());
 }

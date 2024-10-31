@@ -17,11 +17,11 @@ async function fetchWeather(location: string) {
     const response = await fetch(
       `https://wttr.in/${encodeURIComponent(location)}?format=%c+%C+%t(%f)+%h+%w+%p+%m`
     );
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch weather data');
     }
-    
+
     const data = await response.text();
     return data;
   } catch (error) {
@@ -52,17 +52,14 @@ export const weatherAgent = createAgent({
   tools: [
     {
       id: 'weather',
-      ...tool({
-        description:
-          'Get real-time weather information for a specific location',
-        parameters: z.object({
-          location: z.string().describe('The location to get weather for'),
-        }),
-        execute: async ({ location }) => {
-          const weatherData = await fetchWeather(location.toLowerCase());
-          return weatherData;
-        },
+      description: 'Get real-time weather information for a specific location',
+      parameters: z.object({
+        location: z.string().describe('The location to get weather for'),
       }),
+      execute: async ({ location }) => {
+        const weatherData = await fetchWeather(location.toLowerCase());
+        return weatherData;
+      },
     },
   ],
 });

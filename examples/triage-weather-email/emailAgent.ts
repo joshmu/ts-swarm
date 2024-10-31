@@ -15,17 +15,15 @@ export const emailAgent = createAgent({
   tools: [
     {
       id: 'email',
-      ...tool({
-        description: 'A tool for sending an email.',
-        parameters: z.object({
-          to: z.string().describe('The email address of the recipient'),
-          subject: z.string().describe('The subject of the email'),
-          body: z.string().describe('The body of the email'),
-        }),
-        execute: async ({ to, subject, body }) => {
-          return `Email sent to ${to} with subject "${subject}" and body "${body}".`;
-        },
+      description: 'A tool for sending an email.',
+      parameters: z.object({
+        to: z.string().describe('The email address of the recipient'),
+        subject: z.string().describe('The subject of the email'),
+        body: z.string().describe('The body of the email'),
       }),
+      execute: async ({ to, subject, body }) => {
+        return `Email sent to ${to} with subject "${subject}" and body "${body}".`;
+      },
     },
   ],
 });
