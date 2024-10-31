@@ -9,7 +9,7 @@
 
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
-> [!NOTE]
+> [!WARNING]
 > This library is currently under active development and likely to continue to change. All feedback and contributions are welcome! If interested then you can refer to the [Roadmap](#roadmap) and [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Features
@@ -134,7 +134,6 @@ The primary goal of Swarm is to showcase the handoff & routines patterns explore
 ## Roadmap
 
 - [ ] Support streaming
-- [ ] Simplify the public api: Do we need to invoke the Swarm class?
 - [ ] Add more examples, because that's the best way to learn
 - [ ] Providing agentic design pattern examples and architecture flows
 - [ ] Add more tests
