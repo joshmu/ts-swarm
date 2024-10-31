@@ -49,16 +49,20 @@ export const weatherAgent = createAgent({
     Present this information in a friendly, conversational manner.
     If you cannot fulfill the user's request, transfer responsibility to another agent.
   `,
-  tools: {
-    weather: tool({
-      description: 'Get real-time weather information for a specific location',
-      parameters: z.object({
-        location: z.string().describe('The location to get weather for'),
+  tools: [
+    {
+      id: 'weather',
+      ...tool({
+        description:
+          'Get real-time weather information for a specific location',
+        parameters: z.object({
+          location: z.string().describe('The location to get weather for'),
+        }),
+        execute: async ({ location }) => {
+          const weatherData = await fetchWeather(location.toLowerCase());
+          return weatherData;
+        },
       }),
-      execute: async ({ location }) => {
-        const weatherData = await fetchWeather(location.toLowerCase());
-        return weatherData;
-      },
-    }),
-  },
+    },
+  ],
 });

@@ -5,7 +5,6 @@ import { emailAgent } from '../triage-weather-email/emailAgent';
 import { pokemonAgent } from '../pokemon/pokemonAgent';
 import { filesystemAgent } from '../filesystem/filesystemAgent';
 import { webScraperAgent } from '../webscraper/webScraperAgent';
-import { Agent, transferToAgent } from '../../src/index';
 import { runSwarmLoop } from '../run';
 
 const allAgents = [
@@ -17,17 +16,13 @@ const allAgents = [
   webScraperAgent,
 ];
 
-// Util to be able to provide transferToAgent to all agents
-function transferToAllAgents(agent: Agent) {
+// Let all agents transfer to each other
+allAgents.forEach((agent) => {
   const otherAgents = allAgents.filter((a) => a.id !== agent.id);
-  agent.tools = {
-    ...agent.tools,
-    ...otherAgents.reduce((acc, a) => ({ ...acc, ...transferToAgent(a) }), {}),
-  };
-}
-
-// Add transferToAgent to all agents
-allAgents.forEach(transferToAllAgents);
+  otherAgents.forEach((otherAgent) => {
+    agent.tools.push(() => otherAgent);
+  });
+});
 
 runSwarmLoop({
   initialAgent: triageAgent,

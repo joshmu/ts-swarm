@@ -4,11 +4,11 @@ import { z } from 'zod';
 type GenerateText = typeof generateText;
 type GenerateTextParams = Parameters<GenerateText>[0];
 
+type CustomCoreTool = CoreTool & { id: string };
+type TransferToAgentTool = () => Agent;
+type SwarmTool = TransferToAgentTool | CustomCoreTool;
+
 export type Agent = {
-  /**
-   * leverage to determine when we are dealing with an agent
-   */
-  _type: 'agent';
   /**
    * unique identifier for the agent - must not include spaces
    */
@@ -20,7 +20,7 @@ export type Agent = {
   /**
    * tools available to the agent
    */
-  tools: Record<string, CoreTool>;
+  tools: SwarmTool[];
 };
 
 /**
@@ -31,12 +31,12 @@ export type Agent = {
 export function createAgent({
   id,
   model,
-  tools,
+  tools = [],
   ...createConfig
-}: Partial<GenerateTextParams> & {
+}: Omit<Partial<GenerateTextParams>, 'tools'> & {
   id: string;
   model: GenerateTextParams['model'];
-  tools: CoreTool[] | Record<string, CoreTool>;
+  tools?: SwarmTool[];
 }): Agent {
   /**
    * We need to ensure the agent ID is a valid property key for the ai sdk
@@ -48,7 +48,6 @@ export function createAgent({
   }
 
   const agent: Agent = {
-    _type: 'agent',
     id,
     init,
     tools,
@@ -57,7 +56,12 @@ export function createAgent({
   async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
     return generateText({
       model,
-      tools: agent.tools,
+      tools: agent.tools.reduce((acc, tool) => {
+        return {
+          ...acc,
+          ...normalizeSwarmTool(tool),
+        };
+      }, {}),
       ...createConfig,
       ...initConfig,
       /**
@@ -72,10 +76,18 @@ export function createAgent({
 }
 
 /**
+ * basic check to determine if a tool is a transfer to agent tool
+ * @todo: this is a loose hack, we could do better here
+ */
+function isTransferToAgentTool(tool: SwarmTool) {
+  return typeof tool === 'function';
+}
+
+/**
  * Util to create the agent transfer tools
  * @see https://sdk.vercel.ai/docs/ai-sdk-core/agents#example-1
  */
-export function transferToAgent(agent: Agent): Record<string, CoreTool> {
+function transferToAgent(agent: Agent): Record<string, CoreTool> {
   return {
     [`transferTo${agent.id}`]: tool({
       description: `A tool to transfer responsibility to the ${agent.id} agent.`,
@@ -89,4 +101,17 @@ export function transferToAgent(agent: Agent): Record<string, CoreTool> {
       },
     }),
   };
+}
+
+/**
+ * Util to create the transfer to Agent tool via a TransferToAgentTool arg
+ */
+function normalizeSwarmTool(
+  tool: TransferToAgentTool | CustomCoreTool,
+): Record<string, CoreTool> {
+  if (!isTransferToAgentTool(tool)) {
+    const { id, ...rest } = tool;
+    return { [id]: { ...rest } } as Record<string, CoreTool>;
+  }
+  return transferToAgent(tool());
 }

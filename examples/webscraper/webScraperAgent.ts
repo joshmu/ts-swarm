@@ -49,94 +49,109 @@ export const webScraperAgent = createAgent({
     - Clear the current content
     - Perform web searches
   `,
-  tools: {
-    readClipboard: tool({
-      description: 'Reads content from the clipboard',
-      parameters: z.object({}),
-      execute: async () => {
-        try {
-          const content = await clipboard.read();
-          return content || 'Clipboard is empty';
-        } catch (error: any) {
-          return `Error reading clipboard: ${error.message}`;
-        }
-      },
-    }),
-
-    fetchWebContent: tool({
-      description: 'Fetches and extracts text content from a URL',
-      parameters: z.object({
-        url: z.string().describe('The URL to fetch content from'),
-      }),
-      execute: async ({ url }) => {
-        try {
-          const encodedUrl = encodeURIComponent(url);
-          // @see https://jina.ai
-          const jinaReaderUrl = `https://r.jina.ai/${encodedUrl}`;
-          const response = await fetchWithTimeout(jinaReaderUrl, 10000);
-          if (!response.ok) {
-            return `Failed to fetch URL: ${response.statusText}`;
+  tools: [
+    {
+      id: 'readClipboard',
+      ...tool({
+        description: 'Reads content from the clipboard',
+        parameters: z.object({}),
+        execute: async () => {
+          try {
+            const content = await clipboard.read();
+            return content || 'Clipboard is empty';
+          } catch (error: any) {
+            return `Error reading clipboard: ${error.message}`;
           }
-
-          const textContent = await response.text();
-
-          // Store in context for later use
-          lastScrapedContent = textContent;
-
-          return `Successfully fetched and processed content. Preview: First 100 characters:\n${textContent.slice(0, 100)}...`;
-        } catch (error: any) {
-          return `Error fetching content: ${error.message}`;
-        }
-      },
-    }),
-
-    getScrapedContent: tool({
-      description: 'Gets the currently stored scraped content',
-      parameters: z.object({}),
-      execute: async () => {
-        if (!lastScrapedContent) {
-          return 'No content has been scraped yet';
-        }
-        return lastScrapedContent;
-      },
-    }),
-
-    clearScrapedContent: tool({
-      description: 'Clears the currently stored scraped content',
-      parameters: z.object({}),
-      execute: async () => {
-        lastScrapedContent = undefined;
-        return 'Scraped content has been cleared';
-      },
-    }),
-
-    performWebSearch: tool({
-      description: 'Performs a web search and return the results',
-      parameters: z.object({
-        query: z.string().describe('The search query to look up'),
+        },
       }),
-      execute: async ({ query }) => {
-        try {
-          // @see https://jina.ai
-          const encodedQuery = encodeURIComponent(query);
-          const jinaSearchUrl = `https://s.jina.ai/${encodedQuery}`;
-          console.log('execute: > jinaSearchUrl:', jinaSearchUrl);
+    },
 
-          const response = await fetchWithTimeout(jinaSearchUrl, 20000);
-          if (!response.ok) {
-            return `Failed to perform search: ${response.statusText}`;
+    {
+      id: 'fetchWebContent',
+      ...tool({
+        description: 'Fetches and extracts text content from a URL',
+        parameters: z.object({
+          url: z.string().describe('The URL to fetch content from'),
+        }),
+        execute: async ({ url }) => {
+          try {
+            const encodedUrl = encodeURIComponent(url);
+            // @see https://jina.ai
+            const jinaReaderUrl = `https://r.jina.ai/${encodedUrl}`;
+            const response = await fetchWithTimeout(jinaReaderUrl, 10000);
+            if (!response.ok) {
+              return `Failed to fetch URL: ${response.statusText}`;
+            }
+
+            const textContent = await response.text();
+
+            // Store in context for later use
+            lastScrapedContent = textContent;
+
+            return `Successfully fetched and processed content. Preview: First 100 characters:\n${textContent.slice(0, 100)}...`;
+          } catch (error: any) {
+            return `Error fetching content: ${error.message}`;
           }
+        },
+      }),
+    },
 
-          const searchResults = await response.text();
+    {
+      id: 'getScrapedContent',
+      ...tool({
+        description: 'Gets the currently stored scraped content',
+        parameters: z.object({}),
+        execute: async () => {
+          if (!lastScrapedContent) {
+            return 'No content has been scraped yet';
+          }
+          return lastScrapedContent;
+        },
+      }),
+    },
 
-          // Store in context for later use
-          lastScrapedContent = searchResults;
+    {
+      id: 'clearScrapedContent',
+      ...tool({
+        description: 'Clears the currently stored scraped content',
+        parameters: z.object({}),
+        execute: async () => {
+          lastScrapedContent = undefined;
+          return 'Scraped content has been cleared';
+        },
+      }),
+    },
 
-          return `Successfully performed search. Preview of results:\n${searchResults.slice(0, 150)}...`;
-        } catch (error: any) {
-          return `Error performing search: ${error.message}`;
-        }
-      },
-    }),
-  },
+    {
+      id: 'performWebSearch',
+      ...tool({
+        description: 'Performs a web search and return the results',
+        parameters: z.object({
+          query: z.string().describe('The search query to look up'),
+        }),
+        execute: async ({ query }) => {
+          try {
+            // @see https://jina.ai
+            const encodedQuery = encodeURIComponent(query);
+            const jinaSearchUrl = `https://s.jina.ai/${encodedQuery}`;
+            console.log('execute: > jinaSearchUrl:', jinaSearchUrl);
+
+            const response = await fetchWithTimeout(jinaSearchUrl, 20000);
+            if (!response.ok) {
+              return `Failed to perform search: ${response.statusText}`;
+            }
+
+            const searchResults = await response.text();
+
+            // Store in context for later use
+            lastScrapedContent = searchResults;
+
+            return `Successfully performed search. Preview of results:\n${searchResults.slice(0, 150)}...`;
+          } catch (error: any) {
+            return `Error performing search: ${error.message}`;
+          }
+        },
+      }),
+    },
+  ],
 });

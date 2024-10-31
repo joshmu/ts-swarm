@@ -57,7 +57,7 @@ pnpm add @ai-sdk/openai
 > The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). You have access to the full power of the Vercel AI SDK at your disposal including **tools**, **zod validation**, and **model choice**. ⚡
 
 ```typescript
-import { createAgent, Swarm, transferToAgent } from 'ts-swarm';
+import { createAgent, Swarm } from 'ts-swarm';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { tool } from 'ai';
 import { z } from 'zod';
@@ -70,18 +70,21 @@ const weatherAgent = createAgent({
   Your role is to:
     - Provide weather information for requested locations
     - Use the weather tool to fetch weather data`,
-  tools: {
-    weather: tool({
-      description: 'Get the weather for a specific location',
-      parameters: z.object({
-        location: z.string().describe('The location to get weather for'),
+  tools: [
+    {
+      id: 'weather',
+      ...tool({
+        description: 'Get the weather for a specific location',
+        parameters: z.object({
+          location: z.string().describe('The location to get weather for'),
+        }),
+        execute: async ({ location }) => {
+          // Mock weather API call
+          return `The weather in ${location} is sunny with a high of 67°F.`;
+        },
       }),
-      execute: async ({ location }) => {
-        // Mock weather API call
-        return `The weather in ${location} is sunny with a high of 67°F.`;
-      },
-    }),
-  },
+    },
+  ],
 });
 
 // Create the Triage Agent
@@ -91,10 +94,10 @@ const triageAgent = createAgent({
   system: `You are a helpful triage agent. 
   Your role is to:
     - Answer the user's questions by transferring to the appropriate agent`,
-  tools: {
+  tools: [
     // Add ability to transfer to weather agent
-    ...transferToAgent(weatherAgent),
-  },
+    () => weatherAgent,
+  ],
 });
 
 async function demo() {
@@ -139,8 +142,6 @@ The primary goal of Swarm is to showcase the handoff & routines patterns explore
 ## Roadmap
 
 - [ ] Support streaming
-- [ ] Remove the requirement to pass an agent list to the Swarm constructor
-- [ ] Simplify the public api: Remove the requirement of the transferToAgent util
 - [ ] Simplify the public api: Do we need to invoke the Swarm class?
 - [ ] Add more examples, because that's the best way to learn
 - [ ] Providing agentic design pattern examples and architecture flows

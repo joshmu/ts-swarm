@@ -3,7 +3,7 @@
  */
 
 import 'dotenv/config';
-import { createAgent, Swarm, transferToAgent } from '../../src';
+import { createAgent, Swarm } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { tool } from 'ai';
 import { z } from 'zod';
@@ -16,18 +16,21 @@ const weatherAgent = createAgent({
   Your role is to:
     - Provide weather information for requested locations
     - Use the weather tool to fetch weather data`,
-  tools: {
-    weather: tool({
-      description: 'Get the weather for a specific location',
-      parameters: z.object({
-        location: z.string().describe('The location to get weather for'),
+  tools: [
+    {
+      id: 'weather',
+      ...tool({
+        description: 'Get the weather for a specific location',
+        parameters: z.object({
+          location: z.string().describe('The location to get weather for'),
+        }),
+        execute: async ({ location }) => {
+          // Mock weather API call
+          return `The weather in ${location} is sunny with a high of 67°F.`;
+        },
       }),
-      execute: async ({ location }) => {
-        // Mock weather API call
-        return `The weather in ${location} is sunny with a high of 67°F.`;
-      },
-    }),
-  },
+    },
+  ],
 });
 
 // Create the Triage Agent
@@ -37,10 +40,10 @@ const triageAgent = createAgent({
   system: `You are a helpful triage agent. 
   Your role is to:
     - Answer the user's questions by transferring to the appropriate agent`,
-  tools: {
+  tools: [
     // Add ability to transfer to weather agent
-    ...transferToAgent(weatherAgent),
-  },
+    () => weatherAgent,
+  ],
 });
 
 async function demo() {
