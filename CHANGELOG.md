@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.8
+
+### Patch Changes
+
+- 5c39d36: remove requirement for transfer to agent util
+
 ## 1.1.7
 
 ### Patch Changes
