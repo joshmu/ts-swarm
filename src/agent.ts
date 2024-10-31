@@ -90,14 +90,13 @@ function isTransferToAgentTool(tool: SwarmTool) {
 function transferToAgent(agent: Agent): Record<string, CoreTool> {
   return {
     [`transferTo${agent.id}`]: tool({
-      description: `A tool to transfer responsibility to the ${agent.id} agent.`,
-      parameters: z.object({
-        agentId: z
-          .literal(agent.id)
-          .describe(`The id of the ${agent.id} agent.`),
-      }),
-      execute: async ({ agentId }) => {
-        return `Transferring to agent: ${agentId}.`;
+      description: `
+        A tool to transfer responsibility to the ${agent.id} agent.
+      `,
+      parameters: z.object({}),
+      execute: async () => {
+        console.log(`Transferring to agent: ${agent.id}.`);
+        return agent;
       },
     }),
   };

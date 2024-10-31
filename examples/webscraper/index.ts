@@ -10,5 +10,4 @@ runSwarmLoop({
 4. Perform web searches
 Would you like me to check what URL is in your clipboard?`,
   initialAgent: webScraperAgent,
-  agents: [webScraperAgent],
 });

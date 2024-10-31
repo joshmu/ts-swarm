@@ -16,5 +16,4 @@ runSwarmLoop({
   initialAgentMessage:
     'Hey, would you like to know about the weather or send an email?',
   initialAgent: triageAgent,
-  agents: [weatherAgent, emailAgent, triageAgent],
 });

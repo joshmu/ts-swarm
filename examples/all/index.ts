@@ -26,5 +26,4 @@ allAgents.forEach((agent) => {
 
 runSwarmLoop({
   initialAgent: triageAgent,
-  agents: allAgents,
 });

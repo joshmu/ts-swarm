@@ -1,6 +1,6 @@
 import readline from 'readline';
 import { CoreMessage } from 'ai';
-import { Swarm, Agent } from '../src/index';
+import { Agent, runSwarm } from '../src/index';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -24,22 +24,13 @@ async function promptUser(): Promise<string> {
 export async function runSwarmLoop({
   initialAgentMessage = 'Hey, how can I help you today?',
   initialAgent,
-  agents,
-  showToolLogs = true,
 }: {
   initialAgentMessage?: string;
   initialAgent: Agent;
-  agents: Agent[];
-  showToolLogs?: boolean;
 }) {
   console.log(
     `${colors.blue}🤖 ${initialAgent.id}:${colors.reset} ${initialAgentMessage}`,
   );
-
-  const swarm = new Swarm({
-    agents,
-    showToolLogs,
-  });
 
   let messages: CoreMessage[] = [];
 
@@ -57,7 +48,7 @@ export async function runSwarmLoop({
       content: userInput,
     });
 
-    const result = await swarm.run({
+    const result = await runSwarm({
       agent: activeAgent,
       messages,
     });

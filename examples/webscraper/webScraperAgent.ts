@@ -78,7 +78,7 @@ export const webScraperAgent = createAgent({
             const encodedUrl = encodeURIComponent(url);
             // @see https://jina.ai
             const jinaReaderUrl = `https://r.jina.ai/${encodedUrl}`;
-            const response = await fetchWithTimeout(jinaReaderUrl, 10000);
+            const response = await fetchWithTimeout(jinaReaderUrl, 20000);
             if (!response.ok) {
               return `Failed to fetch URL: ${response.statusText}`;
             }
@@ -136,7 +136,7 @@ export const webScraperAgent = createAgent({
             const jinaSearchUrl = `https://s.jina.ai/${encodedQuery}`;
             console.log('execute: > jinaSearchUrl:', jinaSearchUrl);
 
-            const response = await fetchWithTimeout(jinaSearchUrl, 20000);
+            const response = await fetchWithTimeout(jinaSearchUrl, 30000);
             if (!response.ok) {
               return `Failed to perform search: ${response.statusText}`;
             }

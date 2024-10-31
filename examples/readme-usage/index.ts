@@ -3,7 +3,7 @@
  */
 
 import 'dotenv/config';
-import { createAgent, Swarm } from '../../src';
+import { createAgent, runSwarm } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { tool } from 'ai';
 import { z } from 'zod';
@@ -47,18 +47,13 @@ const triageAgent = createAgent({
 });
 
 async function demo() {
-  // Initialize swarm with our agents
-  const swarm = new Swarm({
-    agents: [triageAgent, weatherAgent],
-  });
-
   // Example conversation
   const messages = [
     { role: 'user' as const, content: "What's the weather like in New York?" },
   ];
 
   // Run the swarm
-  const result = await swarm.run({
+  const result = await runSwarm({
     agent: triageAgent,
     messages,
   });
