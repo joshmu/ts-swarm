@@ -45,6 +45,7 @@
     "example:pokemon": "npx tsx examples/pokemon",
     "example:filesystem": "npx tsx examples/filesystem",
     "example:webscraper": "npx tsx examples/webscraper",
+    "example:local": "npx tsx examples/local",
     "example:all": "npx tsx examples/all"
   },
   "dependencies": {
@@ -59,6 +60,7 @@
     "@vitest/coverage-v8": "^2.1.3",
     "clipboardy": "^3.0.0",
     "dotenv": "^16.4.5",
+    "ollama-ai-provider": "^0.16.0",
     "prettier": "^3.3.3",
     "tsup": "^8.3.4",
     "typescript": "^5.6.3",

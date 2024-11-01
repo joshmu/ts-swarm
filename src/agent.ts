@@ -41,9 +41,9 @@ export function createAgent({
   /**
    * We need to ensure the agent ID is a valid property key for the ai sdk
    */
-  if (!id.match(/^[a-zA-Z0-9_]+$/)) {
+  if (!id.match(/^[a-zA-Z0-9_-]+$/)) {
     throw new Error(
-      `Invalid agent ID: ${id}, must be in the format of [a-zA-Z0-9_]`,
+      `Invalid agent ID: ${id}, must be in the format of [a-zA-Z0-9_-]`,
     );
   }
 

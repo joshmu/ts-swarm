@@ -5,6 +5,7 @@ import { emailAgent } from '../triage-weather-email/emailAgent';
 import { pokemonAgent } from '../pokemon/pokemonAgent';
 import { filesystemAgent } from '../filesystem/filesystemAgent';
 import { webScraperAgent } from '../webscraper/webScraperAgent';
+import { localAgent } from '../local/localAgent';
 import { runSwarmLoop } from '../run';
 
 const allAgents = [
@@ -14,6 +15,7 @@ const allAgents = [
   pokemonAgent,
   filesystemAgent,
   webScraperAgent,
+  localAgent,
 ];
 
 // Let all agents transfer to each other

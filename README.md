@@ -10,7 +10,7 @@
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
 > [!WARNING]
-> This library is currently under active development and likely to continue to change. All feedback and contributions are welcome! If interested then you can refer to the [Roadmap](#roadmap) and [CONTRIBUTING.md](./CONTRIBUTING.md)
+> This library is under active development and likely to continue to evolve towards the goal of simplicity and flexibility when working with ai agents. All feedback and contributions are welcome.
 
 ## Features
 
@@ -20,11 +20,13 @@ TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenA
 - **Tools**: Agents can use tools to perform tasks.
 - **Zod Validation**: Tools can use zod validation to ensure the input is correct.
 - **Model Choice**: Easily switch between different LLMs by changing a single line of code.
+- **Local Agents**: Option to run locally with the [ollama-ai-provider](https://sdk.vercel.ai/providers/community-providers/ollama).
 
 ## Examples
 
-Some examples of agents and agentic patterns, additionally take a look at [`examples/run.ts`](./examples/run.ts) on how you could dynamically run the agents.
+Some examples of agents and agentic patterns, additionally take a look at [`examples/run.ts`](./examples/run.ts) on how to have a conversation with agents.
 
+- [Local Agent with Ollama](./examples/local/localAgent.ts)
 - [Pokemon Agent](./examples/pokemon/pokemonAgent.ts)
 - [Web Scraper Agent](./examples/webscraper/webScraperAgent.ts)
 - [Filesystem Agent](./examples/filesystem/filesystemAgent.ts)
@@ -39,16 +41,26 @@ Demo using the [All Agents Connected](./examples/all/index.ts) example:
 
 ## Installation
 
-You will need Node.js 18+ and pnpm installed on your local development machine.
+Use your preferred package manager:
 
 ```bash
 pnpm add ts-swarm ai zod
 ```
 
-Depending on the LLM you want to use via the Vercel AI SDK, you will need to install the appropriate package and ensure that the environment variable key is set.
+Depending on the LLM you want to use via the Vercel AI SDK, you will need to install the appropriate package.
+
+**Run via an LLM provider service** such as OpenAI:
 
 ```bash
+# OpenAI - Ensure OPENAI_API_KEY environment variable is set
 pnpm add @ai-sdk/openai
+```
+
+**Or run locally** with [ollama-ai-provider](https://sdk.vercel.ai/providers/community-providers/ollama):
+
+```bash
+# Ollama - Ensure you leverage a model that supports tool calling
+pnpm add ollama-ai-provider
 ```
 
 ## Usage
@@ -134,9 +146,10 @@ The primary goal of Swarm is to showcase the handoff & routines patterns explore
 ## Roadmap
 
 - [ ] Support streaming
-- [ ] Add more examples, because that's the best way to learn
-- [ ] Providing agentic design pattern examples and architecture flows
-- [ ] Add more tests
+- [ ] Provide agentic design pattern examples
+- [ ] More test coverage
+- [ ] Bash the bugs
+- [ ] Continue to find as much simplicity while maintaining flexibility :)
 
 ## Contributing
 
@@ -144,11 +157,7 @@ We welcome contributions to TS-SWARM! If you'd like to contribute, please see [C
 
 ## Troubleshooting
 
-If you encounter any issues while using TS-SWARM, try the following:
-
-1. **Runtime Errors**: Enable debug mode by setting `debug: true` in the `swarm.run()` options to get more detailed logs.
-
-If you're still experiencing issues, please [open an issue](https://github.com/joshmu/ts-swarm/issues) on the GitHub repository with a detailed description of the problem and steps to reproduce it.
+If you're experiencing issues, please [open an issue](https://github.com/joshmu/ts-swarm/issues) on the GitHub repository with a detailed description of the problem and steps to reproduce it.
 
 ## Acknowledgements
 
