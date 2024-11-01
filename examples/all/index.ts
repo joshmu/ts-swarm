@@ -21,9 +21,7 @@ const allAgents = [
 // Let all agents transfer to each other
 allAgents.forEach((agent) => {
   const otherAgents = allAgents.filter((a) => a.id !== agent.id);
-  otherAgents.forEach((otherAgent) => {
-    agent.tools.push(otherAgent);
-  });
+  agent.tools.push(...otherAgents);
 });
 
 runSwarmLoop({
