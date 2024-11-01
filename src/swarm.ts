@@ -23,11 +23,14 @@ function handleToolCalls(
       /**
        * Determine if we need to transfer to a new agent
        */
-      const newAgent = toolResults.find(isTransferAgentCall) as
-        | CoreToolResult<string, any, Agent>
+      const transferToAgent = toolResults.find(isTransferAgentToolResult) as
+        | (Omit<CoreToolResult<string, any, Agent>, 'result'> & {
+            result: () => Agent;
+          })
         | undefined;
+      const newAgent = transferToAgent?.result?.();
       if (newAgent) {
-        partialResponse.agent = newAgent.result;
+        partialResponse.agent = newAgent;
         /**
          * @todo: hack to remove the Agent data object from the message history
          */
@@ -54,7 +57,7 @@ function handleToolCalls(
 /**
  * Check if the tool call is a transfer agent calls
  */
-function isTransferAgentCall(tool: Tools[number]) {
+function isTransferAgentToolResult(tool: Tools[number]) {
   return tool.toolName.startsWith('transferTo');
 }
 

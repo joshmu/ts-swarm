@@ -5,10 +5,14 @@ type GenerateText = typeof generateText;
 type GenerateTextParams = Parameters<GenerateText>[0];
 
 type CustomCoreTool = CoreTool & { id: string };
-type TransferToAgentTool = () => Agent;
-type SwarmTool = TransferToAgentTool | CustomCoreTool;
+type SwarmTool = Agent | CustomCoreTool;
 
 export type Agent = {
+  /**
+   * @internal
+   * Used to determine if an object is an agent
+   */
+  _type: 'agent';
   /**
    * unique identifier for the agent - must not include spaces
    */
@@ -48,6 +52,7 @@ export function createAgent({
   }
 
   const agent: Agent = {
+    _type: 'agent',
     id,
     init,
     tools,
@@ -83,11 +88,10 @@ function createToolMap(tools: SwarmTool[]) {
 }
 
 /**
- * basic check to determine if a tool is a transfer to agent tool
- * @todo: this is a loose hack, we could do better here
+ * Determine if the tool is an agent
  */
-function isTransferToAgentTool(tool: SwarmTool) {
-  return typeof tool === 'function';
+function isTransferToAgentTool(tool: SwarmTool): tool is Agent {
+  return (tool as Record<string, any>)?._type === 'agent';
 }
 
 /**
@@ -101,21 +105,23 @@ function transferToAgent(agent: Agent): Record<string, CoreTool> {
         A tool to transfer responsibility to the ${agent.id} agent.
       `,
       parameters: z.object({}),
-      execute: async () => agent,
+      execute: async () => () => agent,
     }),
   };
 }
 
 /**
- * Util to create the transfer to Agent tool via a TransferToAgentTool arg
+ * Normalize the swarm tool to a core tool
  */
 function normalizeSwarmTool(swarmTool: SwarmTool): Record<string, CoreTool> {
-  if (!isTransferToAgentTool(swarmTool)) {
-    const { id, ...toolConfig } = swarmTool;
-    return { [id]: tool(toolConfig as Parameters<typeof tool>[0]) } as Record<
-      string,
-      CoreTool
-    >;
+  if (isTransferToAgentTool(swarmTool)) {
+    return transferToAgent(swarmTool);
   }
-  return transferToAgent(swarmTool());
+
+  // otherwise, it's a core tool
+  const { id, ...toolConfig } = swarmTool;
+  return { [id]: tool(toolConfig as Parameters<typeof tool>[0]) } as Record<
+    string,
+    CoreTool
+  >;
 }

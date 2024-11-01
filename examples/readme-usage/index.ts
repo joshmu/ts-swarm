@@ -39,7 +39,7 @@ const triageAgent = createAgent({
     - Answer the user's questions by transferring to the appropriate agent`,
   tools: [
     // Add ability to transfer to weather agent
-    () => weatherAgent,
+    weatherAgent,
   ],
 });
 
