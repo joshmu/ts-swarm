@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.11
+
+### Patch Changes
+
+- 0876751: support local llm models
+
 ## 1.1.10
 
 ### Patch Changes
