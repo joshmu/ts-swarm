@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.12
+
+### Patch Changes
+
+- 4362594: simplify requirement to declare agent transfers
+
 ## 1.1.11
 
 ### Patch Changes
