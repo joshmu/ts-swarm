@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.13
+
+### Patch Changes
+
+- ff1effd: provide further documentation on the public api
+
 ## 1.1.12
 
 ### Patch Changes
