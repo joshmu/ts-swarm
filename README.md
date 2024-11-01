@@ -65,6 +65,8 @@ pnpm add ollama-ai-provider
 
 ## Usage
 
+TS-SWARM is kept minimal and simple. There are only two functions you need to know about: `createAgent` & `runSwarm`.
+
 > [!TIP]
 > The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). Thus you have access to **tools**, **zod validation**, and **model choice**. ⚡
 
@@ -142,6 +144,47 @@ To see more examples, check out the [examples](./examples) directory.
 Otherwise, for more examples please refer to the original openai repo: [swarm](https://github.com/openai/swarm)
 
 The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
+
+## createAgent
+
+`createAgent` defines your agent. It's a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text).
+
+### Arguments
+
+| Argument | Type                          | Description                                                                                                         | Default    |
+| -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------- |
+| id       | `string`                      | Unique identifier for the agent (must match `/^[a-zA-Z0-9_-]+$/`)                                                   | (required) |
+| model    | `LanguageModelV1`             | Refer to [Providers and Models from the Vercel AI SDK](https://sdk.vercel.ai/docs/foundations/providers-and-models) | (required) |
+| tools    | `SwarmTool[]`                 | Array of core tools or agents to transfer to                                                                        | `[]`       |
+| ...rest  | `Partial<GenerateTextParams>` | Refer to [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text)    | `{}`       |
+
+### Returns
+
+Returns an `Agent` object containing:
+
+- `id`: Agent's unique identifier
+- `init`: Function to initialize the agent
+- `tools`: Array of available tools
+
+## runSwarm
+
+The `runSwarm` function handles the LLM request loop through an agent-based system, managing tool calls and agent transfers.
+
+### Arguments
+
+| Argument | Type                                 | Description                                               | Default    |
+| -------- | ------------------------------------ | --------------------------------------------------------- | ---------- |
+| agent    | `Agent`                              | The agent to be called                                    | (required) |
+| messages | `(CoreMessage & SwarmMessageMeta)[]` | Array of llm message objects with optional swarm metadata | (required) |
+| debug    | `boolean`                            | Enables debug logging when true                           | `false`    |
+| maxTurns | `number`                             | Maximum number of conversational turns allowed            | `6`        |
+
+### Returns
+
+Returns a `SwarmResult` object containing:
+
+- `messages`: Array of llm messages from the conversation
+- `agent`: Current active agent
 
 ## Roadmap
 
