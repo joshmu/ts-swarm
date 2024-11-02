@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- a60a0e4: improve logging, clean up utils, provide message callabck
+- 2f0324c: readme doc usage update
+
 ## 1.2.0
 
 ### Minor Changes
