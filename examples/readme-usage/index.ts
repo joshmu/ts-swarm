@@ -58,8 +58,8 @@ async function demo() {
   const result = await triageAgent.run({ messages });
 
   /**
-   * We could wrap this demo logic in a loop and utilise the `result.agent` to continue the conversation
-   * `result.agent` represents the last active agent during the run
+   * We could wrap this logic in a loop to continue the conversation by
+   * utilizing `result.agent` which represents the last active agent during the run
    * For this example `result.agent` would now be the weather agent
    * Refer to the `run.ts` example for an example of this
    */
@@ -67,7 +67,7 @@ async function demo() {
   // Log the last message (or the entire conversation if you prefer)
   const lastMessage = result.messages.at(-1);
   console.log(
-    `${lastMessage.swarmMeta?.agentId || 'User'}: ${lastMessage.content}`,
+    `${lastMessage?.swarmMeta?.agentId || 'User'}: ${lastMessage?.content}`,
   );
 }
 

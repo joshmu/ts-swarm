@@ -9,7 +9,9 @@
     "typescript",
     "openai",
     "agent",
-    "agentic-workflow"
+    "agentic-workflow",
+    "node",
+    "vercel"
   ],
   "publishConfig": {
     "access": "public"
