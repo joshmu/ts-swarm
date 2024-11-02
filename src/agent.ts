@@ -1,35 +1,16 @@
 import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
-
-type GenerateText = typeof generateText;
-type GenerateTextParams = Parameters<GenerateText>[0];
-
-type CustomCoreTool = CoreTool & { id: string };
-type SwarmTool = Agent | CustomCoreTool;
-
-export type Agent = {
-  /**
-   * @internal
-   * Used to determine if an object is an agent
-   */
-  _type: 'agent';
-  /**
-   * unique identifier for the agent - must not include spaces
-   */
-  id: string;
-  /**
-   * logic to initialize the agent
-   */
-  init: (options: Partial<GenerateTextParams>) => ReturnType<GenerateText>;
-  /**
-   * tools available to the agent
-   */
-  tools: SwarmTool[];
-};
+import {
+  Agent,
+  SwarmTool,
+  Message,
+  RunSwarmOptions,
+  GenerateTextParams,
+} from './types';
+import { runSwarm } from './swarm';
 
 /**
  * Creates an agent based on the vercel ai sdk interface
- *
  * Will place some sane defaults to begin with and then will override
  */
 export function createAgent({
@@ -54,11 +35,14 @@ export function createAgent({
   const agent: Agent = {
     _type: 'agent',
     id,
-    init,
+    generate,
+    run,
     tools,
   };
 
-  async function init(initConfig: Partial<Parameters<typeof generateText>[0]>) {
+  async function generate(
+    initConfig: Partial<Parameters<typeof generateText>[0]>,
+  ) {
     return generateText({
       model,
       tools: createToolMap(agent.tools),
@@ -69,6 +53,17 @@ export function createAgent({
        * If we don't do this then internal orchestration will be triggered at the agent level which currently has undesired behavior
        */
       maxSteps: 1,
+    });
+  }
+
+  async function run(
+    options: Partial<Omit<RunSwarmOptions, 'messages'>> & {
+      messages: Message[];
+    },
+  ) {
+    return runSwarm({
+      agent,
+      ...options,
     });
   }
 

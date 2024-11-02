@@ -14,6 +14,7 @@ TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenA
 
 ## Features
 
+- **Minimal Interface**: `createAgent` & `<agent>.run()`, that's it!
 - **Multi-Agent System**: Create and manage multiple AI agents with different roles and capabilities.
 - **Flexible Agent Configuration**: Easily define agent behaviors, instructions, and available functions.
 - **Task Delegation**: Agents can transfer tasks to other specialized agents.
@@ -65,13 +66,13 @@ pnpm add ollama-ai-provider
 
 ## Usage
 
-TS-SWARM is kept minimal and simple. There are only two functions you need to know about: `createAgent` & `runSwarm`.
+TS-SWARM is kept minimal and simple. `createAgent` will create agents. Once you have your agent, `<your-agent>.run()` method will orchestrate the swarm conversation allowing for tool calling and agent handoffs.
 
 > [!TIP]
 > The `createAgent` util is a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text). Thus you have access to **tools**, **zod validation**, and **model choice**. ⚡
 
 ```typescript
-import { createAgent, runSwarm } from 'ts-swarm';
+import { createAgent } from 'ts-swarm';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { z } from 'zod';
 
@@ -79,10 +80,11 @@ import { z } from 'zod';
 const weatherAgent = createAgent({
   id: 'Weather_Agent',
   model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
-  system: `You are a weather assistant. 
-  Your role is to:
-    - Provide weather information for requested locations
-    - Use the weather tool to fetch weather data`,
+  system: `
+    You are a weather assistant. 
+    Your role is to:
+      - Provide weather information for requested locations
+      - Use the weather tool to fetch weather data`,
   tools: [
     {
       id: 'weather',
@@ -102,11 +104,12 @@ const weatherAgent = createAgent({
 const triageAgent = createAgent({
   id: 'Triage_Agent',
   model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
-  system: `You are a helpful triage agent. 
-  Your role is to:
-    - Answer the user's questions by transferring to the appropriate agent`,
+  system: `
+    You are a helpful triage agent. 
+    Your role is to:
+      - Answer the user's questions by transferring to the appropriate agent`,
   tools: [
-    // Add ability to transfer to weather agent
+    // Add ability to transfer to the weather agent
     weatherAgent,
   ],
 });
@@ -117,14 +120,21 @@ async function demo() {
     { role: 'user' as const, content: "What's the weather like in New York?" },
   ];
 
-  // Run the swarm
-  const result = await runSwarm({
-    agent: triageAgent,
-    messages,
-  });
+  /**
+   * Run the triage agent with swarm orchestration
+   * Enabling tool calling and agent handoffs
+   */
+  const result = await triageAgent.run({ messages });
+
+  /**
+   * We could wrap this demo logic in a loop and utilise the `result.agent` to continue the conversation
+   * `result.agent` represents the last active agent during the run
+   * For this example `result.agent` would now be the weather agent
+   * Refer to the `run.ts` example for an example of this
+   */
 
   // Log the last message (or the entire conversation if you prefer)
-  const lastMessage = result.messages[result.messages.length - 1];
+  const lastMessage = result.messages.at(-1);
   console.log(
     `${lastMessage.swarmMeta?.agentId || 'User'}: ${lastMessage.content}`,
   );
@@ -132,7 +142,7 @@ async function demo() {
 
 demo();
 // Query: What's the weather like in New York?
-// Result: The weather in New York is sunny with a high of 67°F.
+// Result: Weather_Agent: The weather in New York is sunny with a high of 67°F.
 ```
 
 The following diagram demonstrates the usage above. A simple multi-agent system that allows for delegation of tasks to specialized agents.
@@ -163,32 +173,34 @@ The primary goal of Swarm is to showcase the handoff & routines patterns explore
 Returns an `Agent` object containing:
 
 - `id`: Agent's unique identifier
-- `init`: Function to initialize the agent
+- `generate`: Function to generate a response
+- `run`: **Function to run the agent with swarm orchestration allowing for tool calls and agent transfers**
 - `tools`: Array of available tools
 
-## runSwarm
+## Agent.run()
 
-The `runSwarm` function handles the LLM request loop through an agent-based system, managing tool calls and agent transfers.
+The `<agent>.run()` method handles the LLM request loop through an agent-based system, managing tool calls and agent handoffs.
 
 ### Arguments
 
-| Argument | Type                                 | Description                                               | Default    |
-| -------- | ------------------------------------ | --------------------------------------------------------- | ---------- |
-| agent    | `Agent`                              | The agent to be called                                    | (required) |
-| messages | `(CoreMessage & SwarmMessageMeta)[]` | Array of llm message objects with optional swarm metadata | (required) |
-| debug    | `boolean`                            | Enables debug logging when true                           | `false`    |
-| maxTurns | `number`                             | Maximum number of conversational turns allowed            | `6`        |
+| Argument | Type        | Description                                               | Default       |
+| -------- | ----------- | --------------------------------------------------------- | ------------- |
+| messages | `Message[]` | Array of llm message objects with optional swarm metadata | (required)    |
+| agent    | `Agent`     | option to override the current agent to be called         | current agent |
+| debug    | `boolean`   | Enables debug logging when true                           | `false`       |
+| maxTurns | `number`    | Maximum number of conversational turns allowed            | `10`          |
 
 ### Returns
 
 Returns a `SwarmResult` object containing:
 
 - `messages`: Array of llm messages from the conversation
-- `agent`: Current active agent
+- `agent`: Last active agent during the run (useful for continuing the conversation)
 
 ## Roadmap
 
 - [ ] Support streaming
+- [ ] Additional context passing
 - [ ] Provide agentic design pattern examples
 - [ ] More test coverage
 - [ ] Bash the bugs

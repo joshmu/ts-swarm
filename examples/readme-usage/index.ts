@@ -3,7 +3,7 @@
  */
 
 import 'dotenv/config';
-import { createAgent, runSwarm } from '../../src';
+import { createAgent } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { z } from 'zod';
 
@@ -11,10 +11,11 @@ import { z } from 'zod';
 const weatherAgent = createAgent({
   id: 'Weather_Agent',
   model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
-  system: `You are a weather assistant. 
-  Your role is to:
-    - Provide weather information for requested locations
-    - Use the weather tool to fetch weather data`,
+  system: `
+    You are a weather assistant. 
+    Your role is to:
+      - Provide weather information for requested locations
+      - Use the weather tool to fetch weather data`,
   tools: [
     {
       id: 'weather',
@@ -34,11 +35,12 @@ const weatherAgent = createAgent({
 const triageAgent = createAgent({
   id: 'Triage_Agent',
   model: openai('gpt-4o-2024-08-06', { structuredOutputs: true }),
-  system: `You are a helpful triage agent. 
-  Your role is to:
-    - Answer the user's questions by transferring to the appropriate agent`,
+  system: `
+    You are a helpful triage agent. 
+    Your role is to:
+      - Answer the user's questions by transferring to the appropriate agent`,
   tools: [
-    // Add ability to transfer to weather agent
+    // Add ability to transfer to the weather agent
     weatherAgent,
   ],
 });
@@ -49,14 +51,21 @@ async function demo() {
     { role: 'user' as const, content: "What's the weather like in New York?" },
   ];
 
-  // Run the swarm
-  const result = await runSwarm({
-    agent: triageAgent,
-    messages,
-  });
+  /**
+   * Run the triage agent with swarm orchestration
+   * Enabling tool calling and agent handoffs
+   */
+  const result = await triageAgent.run({ messages });
+
+  /**
+   * We could wrap this demo logic in a loop and utilise the `result.agent` to continue the conversation
+   * `result.agent` represents the last active agent during the run
+   * For this example `result.agent` would now be the weather agent
+   * Refer to the `run.ts` example for an example of this
+   */
 
   // Log the last message (or the entire conversation if you prefer)
-  const lastMessage = result.messages[result.messages.length - 1];
+  const lastMessage = result.messages.at(-1);
   console.log(
     `${lastMessage.swarmMeta?.agentId || 'User'}: ${lastMessage.content}`,
   );

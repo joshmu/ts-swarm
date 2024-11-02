@@ -1,2 +1,2 @@
-export { runSwarm } from './swarm';
-export { createAgent, type Agent } from './agent';
+export type { Agent } from './types';
+export { createAgent } from './agent';

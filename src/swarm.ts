@@ -1,12 +1,13 @@
-import { Agent } from './agent';
-import { CoreMessage, CoreToolResult, generateText } from 'ai';
-
-const colors = {
-  reset: '\x1b[0m',
-  blue: '\x1b[34m', // for agents
-  green: '\x1b[32m', // for user
-  yellow: '\x1b[33m', // for tool calls
-} as const;
+import { CoreToolResult } from 'ai';
+import { colors, debugLog, isLastDuplicates, log } from './utils';
+import {
+  Agent,
+  RunSwarmOptions,
+  SwarmResult,
+  ToolResults,
+  Tools,
+  ReturnGenerateText,
+} from './types';
 
 /**
  * Handle the list of tool call responses from the LLM
@@ -15,7 +16,7 @@ function handleToolCalls(
   toolResults: ToolResults,
   response: ReturnGenerateText['response'],
   activeAgent: Agent,
-) {
+): SwarmResult {
   const partialResponse: SwarmResult = createSwarmResponse();
 
   if (toolResults.length) {
@@ -64,12 +65,12 @@ function isTransferAgentToolResult(tool: Tools[number]) {
 /**
  * Handle LLM call
  */
-async function getChatCompletion(options: runSwarmOptions) {
+async function getChatCompletion(options: RunSwarmOptions) {
   const { agent, messages, debug } = options;
   debugLog(debug, `passing ${messages.length} messages to ${agent.id}`);
   debugLog(debug, `${agent.id} has ${Object.keys(agent.tools).length} tools`);
   debugLog(debug, messages);
-  return await agent.init({
+  return await agent.generate({
     messages,
     /**
      * If we keep seeing the same message
@@ -78,15 +79,6 @@ async function getChatCompletion(options: runSwarmOptions) {
      */
     ...(isLastDuplicates(messages) && { toolChoice: 'none' }),
   });
-}
-
-function isLastDuplicates(items: any[], threshold = 2) {
-  if (items.length < threshold) return false;
-  const lastItems = items.slice(-threshold);
-  const isDuplicate = lastItems.every(
-    (m, i) => JSON.stringify(m) === JSON.stringify(lastItems[i + 1]),
-  );
-  return isDuplicate;
 }
 
 /**
@@ -103,28 +95,17 @@ function createSwarmResponse(params: Partial<SwarmResult> = {}): SwarmResult {
   };
 }
 
-function log(agent: Agent, message: string) {
-  console.log(`${colors.blue}🤖 ${agent.id}:${colors.reset} ${message}`);
-}
-
-function debugLog(
-  debug: runSwarmOptions['debug'],
-  args: Parameters<typeof console.dir>[0],
-) {
-  if (debug) console.dir(args, { depth: Infinity });
-}
-
 /**
  * Run the swarm by making a single LLM request which is NOT streamed
  */
-export async function runSwarm(options: runSwarmOptions) {
+export async function runSwarm(options: RunSwarmOptions) {
   const {
     agent,
     messages,
     contextVariables = {},
     modelOverride,
     debug = false,
-    maxTurns = 6,
+    maxTurns = 10,
   } = options;
 
   /**
@@ -233,31 +214,3 @@ export async function runSwarm(options: runSwarmOptions) {
     contextVariables: ctx_vars,
   });
 }
-
-type SwarmMessageMeta = {
-  swarmMeta?: {
-    agentId: string;
-  };
-};
-
-type runSwarmOptions = {
-  agent: Agent;
-  /**
-   * Messages could be CoreMessage[] with additional swarm meta fields
-   */
-  messages: (CoreMessage & SwarmMessageMeta)[];
-  contextVariables?: Record<string, any>;
-  modelOverride?: string;
-  debug?: boolean;
-  maxTurns?: number;
-};
-
-type ReturnGenerateText = Awaited<ReturnType<typeof generateText>>;
-type Tools = ReturnGenerateText['toolCalls'];
-type ToolResults = ReturnGenerateText['toolResults'];
-
-type SwarmResult = {
-  messages: (CoreMessage & SwarmMessageMeta)[];
-  agent: Agent;
-  contextVariables: Record<string, any>;
-};

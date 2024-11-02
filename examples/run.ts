@@ -1,17 +1,11 @@
 import readline from 'readline';
-import { CoreMessage } from 'ai';
-import { Agent, runSwarm } from '../src/index';
+import { colors } from '../src/utils';
+import { Agent, Message } from '../src/index';
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-
-const colors = {
-  reset: '\x1b[0m',
-  blue: '\x1b[34m', // for agents
-  green: '\x1b[32m', // for user
-} as const;
 
 async function promptUser(): Promise<string> {
   return new Promise((resolve) => {
@@ -32,12 +26,13 @@ export async function runSwarmLoop({
     `${colors.blue}🤖 ${initialAgent.id}:${colors.reset} ${initialAgentMessage}`,
   );
 
-  let messages: CoreMessage[] = [];
+  let messages: Message[] = [];
 
   let activeAgent = initialAgent;
   while (true) {
     const userInput = await promptUser();
 
+    // option for user to quit
     if (userInput.toLowerCase() === 'exit') {
       rl.close();
       break;
@@ -48,10 +43,7 @@ export async function runSwarmLoop({
       content: userInput,
     });
 
-    const result = await runSwarm({
-      agent: activeAgent,
-      messages,
-    });
+    const result = await activeAgent.run({ messages });
 
     activeAgent = result.agent;
     messages = [...messages, ...result.messages];
