@@ -115,16 +115,16 @@ const triageAgent = createAgent({
 });
 
 async function demo() {
-  // Example conversation
-  const messages = [
-    { role: 'user' as const, content: "What's the weather like in New York?" },
-  ];
-
   /**
    * Run the triage agent with swarm orchestration
    * Enabling tool calling and agent handoffs
    */
-  const result = await triageAgent.run({ messages });
+  const result = await triageAgent.run({
+    // Example conversation passed in
+    messages: [
+      { role: 'user', content: "What's the weather like in New York?" },
+    ],
+  });
 
   /**
    * We could wrap this logic in a loop to continue the conversation by

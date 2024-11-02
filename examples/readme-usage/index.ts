@@ -3,7 +3,7 @@
  */
 
 import 'dotenv/config';
-import { createAgent, Message } from '../../src';
+import { createAgent } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { z } from 'zod';
 
