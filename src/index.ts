@@ -1,2 +1,2 @@
-export type { Agent } from './types';
+export type { Agent, Message } from './types';
 export { createAgent } from './agent';

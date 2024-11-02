@@ -1,5 +1,5 @@
 import readline from 'readline';
-import { colors } from '../src/utils';
+import { colors, prettyLogMsgs } from '../src/utils';
 import { Agent, Message } from '../src/index';
 
 const rl = readline.createInterface({
@@ -22,9 +22,7 @@ export async function runSwarmLoop({
   initialAgentMessage?: string;
   initialAgent: Agent;
 }) {
-  console.log(
-    `${colors.blue}🤖 ${initialAgent.id}:${colors.reset} ${initialAgentMessage}`,
-  );
+  prettyLogMsgs([{ role: 'assistant', content: initialAgentMessage }]);
 
   let messages: Message[] = [];
 
@@ -32,24 +30,26 @@ export async function runSwarmLoop({
   while (true) {
     const userInput = await promptUser();
 
-    // option for user to quit
+    // option for user to exit the conversation
     if (userInput.toLowerCase() === 'exit') {
       rl.close();
       break;
     }
 
+    // add the user message to the messages array
     messages.push({
       role: 'user',
       content: userInput,
     });
 
+    // run the agent with swarm orchestration
     const result = await activeAgent.run({ messages });
 
+    // log the new messages
+    prettyLogMsgs(result.messages);
+
+    // update the state
     activeAgent = result.agent;
     messages = [...messages, ...result.messages];
-
-    console.log(
-      `${colors.blue}🤖 ${result.agent.id}:${colors.reset} ${result.messages.at(-1)?.content}`,
-    );
   }
 }

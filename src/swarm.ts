@@ -1,5 +1,5 @@
 import { CoreToolResult } from 'ai';
-import { colors, debugLog, isLastDuplicates, log } from './utils';
+import { debugLog, isLastDuplicates } from './utils';
 import {
   Agent,
   RunSwarmOptions,
@@ -33,9 +33,9 @@ function handleToolCalls(
       if (newAgent) {
         partialResponse.agent = newAgent;
         /**
-         * @todo: hack to remove the Agent data object from the message history
+         * Remove the Agent data object from the message history
          */
-        const replacementMsg = 'transferred.';
+        const replacementMsg = `transferring to: ${newAgent.id}`;
         t.result = replacementMsg;
         (
           response.messages.find(
@@ -44,9 +44,8 @@ function handleToolCalls(
         ).result = replacementMsg;
       }
 
-      console.log(
-        `${colors.blue}🤖 ${activeAgent.id} ${colors.yellow}(TOOL - ${t.toolName}):${colors.reset} ${t.result}`,
-      );
+      // @todo: remove
+      // prettyLog({ agent: activeAgent, tool: t });
     });
     // add the response messages to the partial response
     partialResponse.messages.push(...response.messages);
@@ -66,10 +65,7 @@ function isTransferAgentToolResult(tool: Tools[number]) {
  * Handle LLM call
  */
 async function getChatCompletion(options: RunSwarmOptions) {
-  const { agent, messages, debug } = options;
-  debugLog(debug, `passing ${messages.length} messages to ${agent.id}`);
-  debugLog(debug, `${agent.id} has ${Object.keys(agent.tools).length} tools`);
-  debugLog(debug, messages);
+  const { agent, messages } = options;
   return await agent.generate({
     messages,
     /**
@@ -120,19 +116,21 @@ export async function runSwarm(options: RunSwarmOptions) {
    * Iterate
    */
   while (history.length - initialMessageLength < maxTurns && activeAgent) {
+    debugLog(debug, `Running ${activeAgent.id}`);
+    debugLog(debug, history);
+
     /**
      * Make the LLM request
      */
-    const { toolCalls, toolResults, text, response } = await getChatCompletion({
+    const chatCompletionResponse = await getChatCompletion({
       agent: activeAgent,
       messages: history,
       contextVariables: ctx_vars,
       modelOverride,
       debug,
     });
-
-    // debugLog(debug, response);
-    debugLog(debug, { toolCalls, toolResults, text });
+    debugLog(debug, chatCompletionResponse);
+    const { toolCalls, toolResults, text, response } = chatCompletionResponse;
 
     /**
      * Update the history
@@ -148,26 +146,10 @@ export async function runSwarm(options: RunSwarmOptions) {
     }
 
     /**
-     * If the tool result is a duplicate of what we already have in history then break
-     * @todo: have not seen this occur anymore, may be worthwhile removing
-     */
-    if (history.at(-1)?.content === (toolResults.at(-1) as any)?.result) {
-      console.log(
-        'Tool result is a duplicate of what we already have in history, breaking...',
-      );
-      activeAgent = null;
-      break;
-    }
-    /**
-     * @todo: there should be another guard scenario when we are caught in a transfer agent loop
-     * when this occurs we should also break
-     */
-
-    /**
      * If there are no tool calls, end the turn
      */
     if (!toolCalls.length) {
-      debugLog(debug, 'Ending turn.');
+      debugLog(debug, 'No toolCalls, ending run.');
       break;
     }
 
@@ -197,7 +179,6 @@ export async function runSwarm(options: RunSwarmOptions) {
      * Update active agent
      */
     if (partialResponse.agent) {
-      log(activeAgent, `Transferring to ${partialResponse.agent.id}`);
       activeAgent = partialResponse.agent;
     }
   }
