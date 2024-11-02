@@ -3,7 +3,7 @@
  */
 
 import 'dotenv/config';
-import { createAgent } from '../../src';
+import { createAgent, Message } from '../../src';
 import { openai } from '@ai-sdk/openai'; // Ensure OPENAI_API_KEY environment variable is set
 import { z } from 'zod';
 
@@ -46,16 +46,16 @@ const triageAgent = createAgent({
 });
 
 async function demo() {
-  // Example conversation
-  const messages = [
-    { role: 'user' as const, content: "What's the weather like in New York?" },
-  ];
-
   /**
    * Run the triage agent with swarm orchestration
    * Enabling tool calling and agent handoffs
    */
-  const result = await triageAgent.run({ messages });
+  const result = await triageAgent.run({
+    // Example conversation passed in
+    messages: [
+      { role: 'user', content: "What's the weather like in New York?" },
+    ],
+  });
 
   /**
    * We could wrap this logic in a loop to continue the conversation by

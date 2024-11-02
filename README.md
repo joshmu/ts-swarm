@@ -183,19 +183,20 @@ The `<agent>.run()` method handles the LLM request loop through an agent-based s
 
 ### Arguments
 
-| Argument | Type        | Description                                               | Default       |
-| -------- | ----------- | --------------------------------------------------------- | ------------- |
-| messages | `Message[]` | Array of llm message objects with optional swarm metadata | (required)    |
-| agent    | `Agent`     | option to override the current agent to be called         | current agent |
-| debug    | `boolean`   | Enables debug logging when true                           | `false`       |
-| maxTurns | `number`    | Maximum number of conversational turns allowed            | `10`          |
+| Argument    | Type                            | Description                                               | Default       |
+| ----------- | ------------------------------- | --------------------------------------------------------- | ------------- |
+| messages    | `Message[]`                     | Array of llm message objects with optional swarm metadata | (required)    |
+| activeAgent | `Agent`                         | option to override the current active agent to be called  | current agent |
+| onMessages  | `(messages: Message[]) => void` | Callback when new messages are received                   | `undefined`   |
+| debug       | `boolean`                       | Enables debug logging when true                           | `false`       |
+| maxTurns    | `number`                        | Maximum number of conversational turns allowed            | `10`          |
 
 ### Returns
 
 Returns a `SwarmResult` object containing:
 
 - `messages`: Array of llm messages from the conversation
-- `agent`: Last active agent during the run (useful for continuing the conversation)
+- `activeAgent`: Current active agent on completion of the run (useful for continuing the conversation)
 
 ## Roadmap
 

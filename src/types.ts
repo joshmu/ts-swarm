@@ -41,11 +41,11 @@ export type SwarmResult = {
   /**
    * The current active agent
    */
-  agent: Agent;
+  activeAgent: Agent;
   contextVariables: Record<string, any>;
 };
 export type RunSwarmOptions = {
-  agent: Agent;
+  activeAgent: Agent;
   /**
    * Messages could be CoreMessage[] with additional swarm meta fields
    */
@@ -54,6 +54,10 @@ export type RunSwarmOptions = {
   modelOverride?: string;
   debug?: boolean;
   maxTurns?: number;
+  /**
+   * Callback when new messages are received
+   */
+  onMessages?: (messages: Message[]) => void;
 };
 export type ReturnGenerateText = Awaited<ReturnType<typeof generateText>>;
 export type Tools = ReturnGenerateText['toolCalls'];

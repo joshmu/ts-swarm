@@ -73,15 +73,3 @@ export function debugLog(
 ) {
   if (debug) console.dir(args, { depth: Infinity });
 }
-
-/**
- * Check if the last items are duplicates
- */
-export function isLastDuplicates(items: any[], threshold = 2) {
-  if (items.length < threshold) return false;
-  const lastItems = items.slice(-threshold);
-  const isDuplicate = lastItems.every(
-    (m, i) => JSON.stringify(m) === JSON.stringify(lastItems[i + 1]),
-  );
-  return isDuplicate;
-}

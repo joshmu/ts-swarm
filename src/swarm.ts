@@ -1,5 +1,5 @@
 import { CoreToolResult } from 'ai';
-import { debugLog, isLastDuplicates } from './utils';
+import { debugLog } from './utils';
 import {
   Agent,
   RunSwarmOptions,
@@ -13,9 +13,8 @@ import {
  * Handle the list of tool call responses from the LLM
  */
 function handleToolCalls(
-  toolResults: ToolResults,
+  toolResults: ToolResults = [],
   response: ReturnGenerateText['response'],
-  activeAgent: Agent,
 ): SwarmResult {
   const partialResponse: SwarmResult = createSwarmResponse();
 
@@ -31,7 +30,7 @@ function handleToolCalls(
         | undefined;
       const newAgent = transferToAgent?.result?.();
       if (newAgent) {
-        partialResponse.agent = newAgent;
+        partialResponse.activeAgent = newAgent;
         /**
          * Remove the Agent data object from the message history
          */
@@ -43,9 +42,6 @@ function handleToolCalls(
           )!.content[0] as any
         ).result = replacementMsg;
       }
-
-      // @todo: remove
-      // prettyLog({ agent: activeAgent, tool: t });
     });
     // add the response messages to the partial response
     partialResponse.messages.push(...response.messages);
@@ -65,16 +61,8 @@ function isTransferAgentToolResult(tool: Tools[number]) {
  * Handle LLM call
  */
 async function getChatCompletion(options: RunSwarmOptions) {
-  const { agent, messages } = options;
-  return await agent.generate({
-    messages,
-    /**
-     * If we keep seeing the same message
-     * Then the llm is most likely stuck calling the same tool
-     * let's force it to stop with some form of answer
-     */
-    ...(isLastDuplicates(messages) && { toolChoice: 'none' }),
-  });
+  const { activeAgent: agent, messages } = options;
+  return await agent.generate({ messages });
 }
 
 /**
@@ -86,7 +74,7 @@ function createSwarmResponse(params: Partial<SwarmResult> = {}): SwarmResult {
     /**
      * @todo: this type is not correct...
      */
-    agent: params.agent!,
+    activeAgent: params.activeAgent!,
     contextVariables: params.contextVariables ?? {},
   };
 }
@@ -96,7 +84,7 @@ function createSwarmResponse(params: Partial<SwarmResult> = {}): SwarmResult {
  */
 export async function runSwarm(options: RunSwarmOptions) {
   const {
-    agent,
+    activeAgent: agent,
     messages,
     contextVariables = {},
     modelOverride,
@@ -123,7 +111,7 @@ export async function runSwarm(options: RunSwarmOptions) {
      * Make the LLM request
      */
     const chatCompletionResponse = await getChatCompletion({
-      agent: activeAgent,
+      activeAgent: activeAgent,
       messages: history,
       contextVariables: ctx_vars,
       modelOverride,
@@ -133,17 +121,38 @@ export async function runSwarm(options: RunSwarmOptions) {
     const { toolCalls, toolResults, text, response } = chatCompletionResponse;
 
     /**
-     * Update the history
+     * Handle the tool calls
+     */
+    const partialResponse = handleToolCalls(toolResults, response);
+
+    /**
+     * Update the partial response
      */
     if (text) {
-      history.push({
+      partialResponse.messages.push({
         role: 'assistant',
         content: text,
-        swarmMeta: {
-          agentId: activeAgent.id,
-        },
       });
     }
+
+    /**
+     * Update the messages with swarm meta information
+     */
+    partialResponse.messages.forEach((m) => {
+      m.swarmMeta = {
+        agentId: activeAgent?.id!,
+      };
+    });
+
+    /**
+     * Option to log the messages via callback
+     */
+    if (options.onMessages) options.onMessages(partialResponse.messages);
+
+    /**
+     * Update the history
+     */
+    history.push(...partialResponse.messages);
 
     /**
      * If there are no tool calls, end the turn
@@ -154,23 +163,6 @@ export async function runSwarm(options: RunSwarmOptions) {
     }
 
     /**
-     * Handle the tool calls
-     */
-    const partialResponse = handleToolCalls(toolResults, response, activeAgent);
-
-    /**
-     * Add to history
-     */
-    history.push(
-      ...partialResponse.messages.map((m) => ({
-        ...m,
-        swarmMeta: {
-          agentId: activeAgent?.id!,
-        },
-      })),
-    );
-
-    /**
      * Update context
      */
     ctx_vars = { ...ctx_vars, ...partialResponse.contextVariables };
@@ -178,8 +170,8 @@ export async function runSwarm(options: RunSwarmOptions) {
     /**
      * Update active agent
      */
-    if (partialResponse.agent) {
-      activeAgent = partialResponse.agent;
+    if (partialResponse.activeAgent) {
+      activeAgent = partialResponse.activeAgent;
     }
   }
 
@@ -191,7 +183,7 @@ export async function runSwarm(options: RunSwarmOptions) {
   const newMessages = history.slice(initialMessageLength);
   return createSwarmResponse({
     messages: newMessages,
-    agent: activeAgent!,
+    activeAgent: activeAgent!,
     contextVariables: ctx_vars,
   });
 }

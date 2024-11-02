@@ -62,7 +62,7 @@ export function createAgent({
     },
   ) {
     return runSwarm({
-      agent,
+      activeAgent: agent,
       ...options,
     });
   }
