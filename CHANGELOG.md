@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- 75715ca: simplify the public api further by removing the runSwarm util and providing this to agent.run
+
 ## 1.1.13
 
 ### Patch Changes
