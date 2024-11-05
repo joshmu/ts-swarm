@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+### Patch Changes
+
+- a828f75: update docs, add runSwarmLoop to allow consumers a way to more easily test agents in the terminal
+
 ## 1.2.1
 
 ### Patch Changes
