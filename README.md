@@ -153,7 +153,7 @@ Otherwise, for more examples please refer to the original openai repo: [swarm](h
 
 The primary goal of Swarm is to showcase the handoff & routines patterns explored in the [Orchestrating Agents: Handoffs & Routines cookbook](https://cookbook.openai.com/examples/orchestrating_agents)
 
-## createAgent
+## createAgent()
 
 `createAgent` defines your agent. It's a thin wrapper over [`generateText` from the Vercel AI SDK](https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text).
 
@@ -175,7 +175,7 @@ Returns an `Agent` object containing:
 - `run`: **Function to run the agent with swarm orchestration allowing for tool calls and agent transfers**
 - `tools`: Array of available tools
 
-## Agent.run()
+## agent.run()
 
 The `<agent>.run()` method handles the LLM request loop through an agent-based system, managing tool calls and agent handoffs.
 
@@ -195,6 +195,17 @@ Returns a `SwarmResult` object containing:
 
 - `messages`: Array of llm messages from the conversation
 - `activeAgent`: Current active agent on completion of the run (useful for continuing the conversation)
+
+## runSwarmLoop()
+
+The `runSwarmLoop` function is a convenience function to allow you to test your agents in the terminal. It's a simple while loop that continues to run until the user decides to 'exit'. It is what is used in most of the examples and the source code can be viewed in [`examples/run.ts`](./examples/run.ts).
+
+### Arguments
+
+| Argument            | Type     | Description                                                                 |
+| ------------------- | -------- | --------------------------------------------------------------------------- |
+| initialAgentMessage | `string` | The initial message from the agent to the user to commence the conversation |
+| initialAgent        | `Agent`  | The initial agent to start the conversation with                            |
 
 ## Roadmap
 
