@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.4
+
+### Patch Changes
+
+- 39b5074: readme npm publish issue fix
+
 ## 1.2.3
 
 ### Patch Changes
