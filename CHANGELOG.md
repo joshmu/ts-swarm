@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+
+### Patch Changes
+
+- 1d51882: runDemoLoop rename
+
 ## 1.2.4
 
 ### Patch Changes
