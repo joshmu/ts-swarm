@@ -6,7 +6,7 @@ import { pokemonAgent } from '../pokemon/pokemonAgent';
 import { filesystemAgent } from '../filesystem/filesystemAgent';
 import { webScraperAgent } from '../webscraper/webScraperAgent';
 import { localAgent } from '../local/localAgent';
-import { runSwarmLoop } from '../run';
+import { runDemoLoop } from '../run';
 
 const allAgents = [
   triageAgent,
@@ -24,6 +24,6 @@ allAgents.forEach((agent) => {
   agent.tools.push(...otherAgents);
 });
 
-runSwarmLoop({
+runDemoLoop({
   initialAgent: triageAgent,
 });

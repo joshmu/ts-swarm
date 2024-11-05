@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { runSwarmLoop } from '../run';
+import { runDemoLoop } from '../run';
 import { weatherAgent } from './weatherAgent';
 import { emailAgent } from './emailAgent';
 import { triageAgent } from './triageAgent';
@@ -11,7 +11,7 @@ triageAgent.tools.push(weatherAgent, emailAgent);
 weatherAgent.tools.push(triageAgent);
 emailAgent.tools.push(triageAgent);
 
-runSwarmLoop({
+runDemoLoop({
   initialAgentMessage:
     'Hey, would you like to know about the weather or send an email?',
   initialAgent: triageAgent,

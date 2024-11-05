@@ -18,7 +18,7 @@ async function promptUser(): Promise<string> {
   });
 }
 
-export async function runSwarmLoop({
+export async function runDemoLoop({
   initialAgentMessage = 'Hey, how can I help you today?',
   initialAgent,
 }: {

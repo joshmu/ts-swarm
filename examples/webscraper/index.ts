@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { webScraperAgent } from './webScraperAgent';
-import { runSwarmLoop } from '../run';
+import { runDemoLoop } from '../run';
 
-runSwarmLoop({
+runDemoLoop({
   initialAgentMessage: `Hello! I can help you analyze web content. I can:
 1. Read URLs from your clipboard
 2. Fetch and extract text from web pages

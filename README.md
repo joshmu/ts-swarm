@@ -196,9 +196,9 @@ Returns a `SwarmResult` object containing:
 - `messages`: Array of llm messages from the conversation
 - `activeAgent`: Current active agent on completion of the run (useful for continuing the conversation)
 
-## runSwarmLoop()
+## runDemoLoop()
 
-The `runSwarmLoop` function is a convenience function to allow you to test your agents in the terminal. It's a simple while loop that continues to run until the user decides to 'exit'. It is what is used in most of the examples and the source code can be viewed in [`examples/run.ts`](./examples/run.ts).
+The `runDemoLoop` function is a convenience function to allow you to test your agents in the terminal. It's a simple while loop that continues to run until the user decides to 'exit'. It is what is used in most of the examples and the source code can be viewed in [`examples/run.ts`](./examples/run.ts).
 
 ### Arguments
 
