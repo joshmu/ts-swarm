@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+
+### Patch Changes
+
+- c1abb80: docs readme update
+
 ## 1.2.2
 
 ### Patch Changes
