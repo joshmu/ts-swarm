@@ -59,8 +59,8 @@ async function demo() {
 
   /**
    * We could wrap this logic in a loop to continue the conversation by
-   * utilizing `result.agent` which represents the last active agent during the run
-   * For this example `result.agent` would now be the weather agent
+   * utilizing `result.activeAgent` which represents the last active agent during the run
+   * For this example `result.activeAgent` would now be the weather agent
    * Refer to the `run.ts` example for an example of this
    */
 

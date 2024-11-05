@@ -1,12 +1,6 @@
 import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
-import {
-  Agent,
-  SwarmTool,
-  Message,
-  RunSwarmOptions,
-  GenerateTextParams,
-} from './types';
+import { Agent, SwarmTool, GenerateTextParams } from './types';
 import { runSwarm } from './swarm';
 
 /**
@@ -40,9 +34,7 @@ export function createAgent({
     tools,
   };
 
-  async function generate(
-    initConfig: Partial<Parameters<typeof generateText>[0]>,
-  ) {
+  async function generate(initConfig: Parameters<Agent['generate']>[0]) {
     return generateText({
       model,
       tools: createToolMap(agent.tools),
@@ -56,11 +48,7 @@ export function createAgent({
     });
   }
 
-  async function run(
-    options: Partial<Omit<RunSwarmOptions, 'messages'>> & {
-      messages: Message[];
-    },
-  ) {
+  async function run(options: Parameters<Agent['run']>[0]) {
     return runSwarm({
       activeAgent: agent,
       ...options,

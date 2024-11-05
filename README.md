@@ -9,9 +9,6 @@
 
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
 
-> [!WARNING]
-> This library is under active development and likely to continue to evolve towards the goal of simplicity and flexibility when working with ai agents. All feedback and contributions are welcome.
-
 ## Features
 
 - **Minimal Interface**: `createAgent` & `<agent>.run()`, that's it!
