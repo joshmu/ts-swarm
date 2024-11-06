@@ -1,20 +1,20 @@
 import { CoreToolResult } from 'ai';
 import { debugLog } from './utils';
 import {
-  Agent,
   RunSwarmOptions,
   SwarmResult,
   ToolResults,
   Tools,
   ReturnGenerateText,
 } from './types';
+import { Agent } from './agent';
 
 /**
  * Handle the list of tool call responses from the LLM
  */
 function handleToolCalls(
-  toolResults: ToolResults = [],
   response: ReturnGenerateText['response'],
+  toolResults: ToolResults = [],
 ): SwarmResult {
   const partialResponse: SwarmResult = createSwarmResponse();
 
@@ -111,7 +111,7 @@ export async function runSwarm(options: RunSwarmOptions) {
      * Make the LLM request
      */
     const chatCompletionResponse = await getChatCompletion({
-      activeAgent: activeAgent,
+      activeAgent,
       messages: history,
       contextVariables: ctx_vars,
       modelOverride,
@@ -123,7 +123,7 @@ export async function runSwarm(options: RunSwarmOptions) {
     /**
      * Handle the tool calls
      */
-    const partialResponse = handleToolCalls(toolResults, response);
+    const partialResponse = handleToolCalls(response, toolResults);
 
     /**
      * Update the partial response

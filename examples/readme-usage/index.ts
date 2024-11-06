@@ -69,6 +69,9 @@ async function demo() {
   console.log(
     `${lastMessage?.swarmMeta?.agentId || 'User'}: ${lastMessage?.content}`,
   );
+
+  // done
+  process.exit(0);
 }
 
 demo();

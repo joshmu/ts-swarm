@@ -1,45 +1,70 @@
 import { CoreTool, generateText, tool } from 'ai';
 import { z } from 'zod';
-import { Agent, SwarmTool, GenerateTextParams } from './types';
+import {
+  SwarmTool,
+  GenerateTextParams,
+  Message,
+  RunSwarmOptions,
+} from './types';
 import { runSwarm } from './swarm';
 
 /**
- * Creates an agent based on the vercel ai sdk interface
- * Will place some sane defaults to begin with and then will override
+ * Declarative helper to create an agent instance
  */
 export function createAgent({
   id,
   model,
   tools = [],
-  ...createConfig
+  ...config
 }: Omit<Partial<GenerateTextParams>, 'tools'> & {
   id: string;
   model: GenerateTextParams['model'];
   tools?: SwarmTool[];
 }): Agent {
-  /**
-   * We need to ensure the agent ID is a valid property key for the ai sdk
-   */
-  if (!id.match(/^[a-zA-Z0-9_-]+$/)) {
-    throw new Error(
-      `Invalid agent ID: ${id}, must be in the format of [a-zA-Z0-9_-]`,
-    );
+  return new Agent({ id, model, tools, ...config });
+}
+
+/**
+ * Agent class
+ */
+export class Agent {
+  readonly id: string;
+  model: GenerateTextParams['model'];
+  tools: SwarmTool[];
+  baseConfig: Omit<Partial<GenerateTextParams>, 'tools'>;
+
+  constructor({
+    id,
+    model,
+    tools = [],
+    ...createConfig
+  }: Omit<Partial<GenerateTextParams>, 'tools'> & {
+    id: string;
+    model: GenerateTextParams['model'];
+    tools?: SwarmTool[];
+  }) {
+    const AI_SDK_VALID_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
+    if (!RegExp(AI_SDK_VALID_ID_REGEX).exec(id)) {
+      throw new Error(
+        `Invalid agent ID: "${id}", must be in the format of [a-zA-Z0-9_-]`,
+      );
+    }
+
+    this.id = id;
+    this.model = model;
+    this.tools = tools;
+    this.baseConfig = createConfig;
   }
 
-  const agent: Agent = {
-    _type: 'agent',
-    id,
-    generate,
-    run,
-    tools,
-  };
-
-  async function generate(initConfig: Parameters<Agent['generate']>[0]) {
+  /**
+   * Generate a raw vercel ai sdk generateText response
+   */
+  generate(config: Partial<GenerateTextParams>) {
     return generateText({
-      model,
-      tools: createToolMap(agent.tools),
-      ...createConfig,
-      ...initConfig,
+      model: this.model,
+      tools: createToolMap(this.tools),
+      ...this.baseConfig,
+      ...config,
       /**
        * ! set the limit to 1 to allow the swarm to determine the orchestration
        * If we don't do this then internal orchestration will be triggered at the agent level which currently has undesired behavior
@@ -48,14 +73,19 @@ export function createAgent({
     });
   }
 
-  async function run(options: Parameters<Agent['run']>[0]) {
+  /**
+   * Run the agent and allow agent tool handoffs with swarm orchestration
+   */
+  run(
+    options: Partial<Omit<RunSwarmOptions, 'messages'>> & {
+      messages: Message[];
+    },
+  ) {
     return runSwarm({
-      activeAgent: agent,
+      activeAgent: this,
       ...options,
     });
   }
-
-  return agent;
 }
 
 /**
@@ -71,10 +101,10 @@ function createToolMap(tools: SwarmTool[]) {
 }
 
 /**
- * Determine if the tool is an agent
+ * Determine if the tool is an agent instance
  */
 function isTransferToAgentTool(tool: SwarmTool): tool is Agent {
-  return (tool as Record<string, any>)?._type === 'agent';
+  return (tool as Record<string, any>) instanceof Agent;
 }
 
 /**

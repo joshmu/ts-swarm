@@ -1,6 +1,6 @@
 # TS-SWARM 🐝
 
-[![npm version](https://img.shields.io/npm/v/ts-swarm.svg)](https://www.npmjs.com/package/ts-swarm)
+[![npm version](https://img.shields.io/npm/v/ts-swarm.svg)](https://www.npmjs.com/package/ts-swarm?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fts-swarm)
 ![NPM Downloads](https://img.shields.io/npm/dw/ts-swarm?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fts-swarm)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

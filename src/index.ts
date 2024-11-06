@@ -1,3 +1,3 @@
-export type { Agent, Message } from './types';
+export type { Message } from './types';
 export { runDemoLoop } from '../examples/run';
-export { createAgent } from './agent';
+export { createAgent, type Agent } from './agent';
