@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.6
+
+### Patch Changes
+
+- 5c44689: update agent object to class instance
+
 ## 1.2.5
 
 ### Patch Changes
