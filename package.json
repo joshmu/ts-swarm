@@ -1,6 +1,6 @@
 {
   "name": "ts-swarm",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of the OpenAI Swarm API with the flexibility of the Vercel AI SDK.",
   "keywords": [
     "swarm",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.7
+
+### Patch Changes
+
+- d2232d6: deprecation notice
+
 ## 1.2.6
 
 ### Patch Changes
