@@ -5,6 +5,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> [!WARNING]
+> TS-SWARM has reached end-of-life and is no longer receiving updates or bug fixes.
+> Consider migrating to alternative solutions or forking the repository if you need continued support.
+
 ## Overview
 
 TS-SWARM is a minimal TypeScript Agentic library mixing the simplicity of [OpenAI Swarm API](https://github.com/openai/swarm) with the flexibility of the [Vercel AI SDK](https://github.com/vercel/ai).
